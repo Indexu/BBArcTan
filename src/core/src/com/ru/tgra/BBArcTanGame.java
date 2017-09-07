@@ -3,7 +3,8 @@ package com.ru.tgra;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.GL20;
+import com.ru.tgra.shapes.CircleGraphic;
+import com.ru.tgra.shapes.RectangleGraphic;
 
 import java.util.Random;
 
@@ -12,10 +13,8 @@ public class BBArcTanGame extends ApplicationAdapter
 	private float position_x;
 	private float position_y;
 	private float speed;
-	private float scale_x = 1f;
-	private float scale_y = 1f;
-	private float height = 768;
-	private float width = 1024;
+	private float scale_x = 100f;
+	private float scale_y = 100f;
 	private Random rand;
 
 	@Override
@@ -27,7 +26,7 @@ public class BBArcTanGame extends ApplicationAdapter
 
 		position_x = 300;
 		position_y = 300;
-		speed = 6f;
+		speed = 300f;
 
 		rand = new Random();
 
@@ -36,47 +35,49 @@ public class BBArcTanGame extends ApplicationAdapter
 
 	private void update()
 	{
+	    float deltaTime = Gdx.graphics.getDeltaTime();
+
 		if(Gdx.input.justTouched())
 		{
 			//do mouse/touch input stuff
 			position_x = Gdx.input.getX();
-			position_y = height - Gdx.input.getY();
+			position_y = Gdx.graphics.getHeight() - Gdx.input.getY();
 		}
 
 		//do all updates to the game
 
 		if (Gdx.input.isKeyPressed(Input.Keys.RIGHT))
 		{
-			position_x += speed;
+			position_x += speed * deltaTime;
 		}
 
 		if (Gdx.input.isKeyPressed(Input.Keys.LEFT))
 		{
-			position_x -= speed;
+			position_x -= speed * deltaTime;
 		}
 
 		if (Gdx.input.isKeyPressed(Input.Keys.UP))
 		{
-			position_y += speed;
+			position_y += speed * deltaTime;
 		}
 
 		if (Gdx.input.isKeyPressed(Input.Keys.DOWN))
 		{
-			position_y -= speed;
+			position_y -= speed * deltaTime;
 		}
 
-		if (height < position_y + 50f)
+		if (Gdx.graphics.getHeight() < position_y + 50f)
 		{
-			position_y = height - 50f;
+			position_y = Gdx.graphics.getHeight() - 50f;
 		}
 		else if (position_y - 50f < 0)
 		{
 			position_y = 50f;
 		}
 
-		if (width < position_x + 50f)
+		if (Gdx.graphics.getWidth() < position_x + 50f)
 		{
-			position_x = width - 50f;
+			position_x = Gdx.graphics.getWidth() - 50f;
 		}
 		else if (position_x - 50f < 0)
 		{
@@ -89,16 +90,14 @@ public class BBArcTanGame extends ApplicationAdapter
 
 	private void display()
 	{
-		//do all actual drawing and rendering here
 		GraphicsEnvironment.clear();
 
 		GraphicsEnvironment.clearModelMatrix();
 		GraphicsEnvironment.setModelMatrixTranslation(position_x, position_y);
 		GraphicsEnvironment.setModelMatrixScale(scale_x, scale_y);
 
-		Gdx.gl.glVertexAttribPointer(GraphicsEnvironment.getPositionLoc(), 2, GL20.GL_FLOAT, false, 0,
-				GraphicsEnvironment.getVertexBuffer());
-		Gdx.gl.glDrawArrays(GL20.GL_TRIANGLE_STRIP, 0, 4);
+        RectangleGraphic.drawSolid();
+        CircleGraphic.drawOutline();
 	}
 
 	@Override
@@ -106,5 +105,7 @@ public class BBArcTanGame extends ApplicationAdapter
 	{
 		update();
 		display();
+
+		// GraphicsEnvironment.drawText("Hallo verden", 500, 400);
 	}
 }
