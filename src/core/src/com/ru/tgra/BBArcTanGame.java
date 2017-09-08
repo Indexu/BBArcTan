@@ -15,7 +15,6 @@ public class BBArcTanGame extends ApplicationAdapter
 	private float speed;
 	private float scale_x = 100f;
 	private float scale_y = 100f;
-	private Random rand;
 
 	@Override
 	public void create ()
@@ -24,11 +23,9 @@ public class BBArcTanGame extends ApplicationAdapter
 
 		GraphicsEnvironment.setClearColor(0.4f, 0.6f, 1.0f, 1.0f);
 
-		position_x = 300;
-		position_y = 300;
+		position_x = Gdx.graphics.getWidth() / 2;
+		position_y = Gdx.graphics.getHeight() / 2;
 		speed = 300f;
-
-		rand = new Random();
 
 		GraphicsEnvironment.setColor(0.3f, 0.2f, 0, 1);
 	}
@@ -83,9 +80,6 @@ public class BBArcTanGame extends ApplicationAdapter
 		{
 			position_x = 50f;
 		}
-
-		scale_x += rand.nextFloat() * (0.05f) - 0.025f;
-		scale_y += rand.nextFloat() * (0.05f) - 0.025f;
 	}
 
 	private void display()
@@ -93,11 +87,19 @@ public class BBArcTanGame extends ApplicationAdapter
 		GraphicsEnvironment.clear();
 
 		GraphicsEnvironment.clearModelMatrix();
-		GraphicsEnvironment.setModelMatrixTranslation(position_x, position_y);
-		GraphicsEnvironment.setModelMatrixScale(scale_x, scale_y);
+
+        //GraphicsEnvironment.OrthographicProjection2D(position_x - (scale_x/2), position_x + (scale_x/2),
+        //       position_y - (scale_y/2), position_y + (scale_y/2));
+
+        GraphicsEnvironment.setModelMatrixTranslation(position_x, position_y);
+        GraphicsEnvironment.setModelMatrixScale(scale_x, scale_y);
+        GraphicsEnvironment.setModelMatrixRotation(45);
 
         RectangleGraphic.drawSolid();
-        CircleGraphic.drawOutline();
+
+        // GraphicsEnvironment.OrthographicProjection2D(0, Gdx.graphics.getWidth(), 0, Gdx.graphics.getHeight());
+
+        // GraphicsEnvironment.drawText("Hallo verden", 500, 400);
 	}
 
 	@Override
@@ -105,7 +107,5 @@ public class BBArcTanGame extends ApplicationAdapter
 	{
 		update();
 		display();
-
-		// GraphicsEnvironment.drawText("Hallo verden", 500, 400);
 	}
 }
