@@ -13,8 +13,8 @@ public class BBArcTanGame extends ApplicationAdapter
 	private float position_x;
 	private float position_y;
 	private float speed;
-	private float scale_x = 100f;
-	private float scale_y = 100f;
+	private float scale_x = 50f;
+	private float scale_y = 200f;
 
 	@Override
 	public void create ()
@@ -84,22 +84,19 @@ public class BBArcTanGame extends ApplicationAdapter
 
 	private void display()
 	{
+
 		GraphicsEnvironment.clear();
 
 		GraphicsEnvironment.clearModelMatrix();
 
-        //GraphicsEnvironment.OrthographicProjection2D(position_x - (scale_x/2), position_x + (scale_x/2),
-        //       position_y - (scale_y/2), position_y + (scale_y/2));
-
         GraphicsEnvironment.setModelMatrixTranslation(position_x, position_y);
-        GraphicsEnvironment.setModelMatrixScale(scale_x, scale_y);
         GraphicsEnvironment.setModelMatrixRotation(45);
+        GraphicsEnvironment.setModelMatrixScale(scale_x, scale_y);
 
+        GraphicsEnvironment.setColor(0.3f, 0.2f, 0, 1);
         RectangleGraphic.drawSolid();
 
-        // GraphicsEnvironment.OrthographicProjection2D(0, Gdx.graphics.getWidth(), 0, Gdx.graphics.getHeight());
-
-        // GraphicsEnvironment.drawText("Hallo verden", 500, 400);
+        GraphicsEnvironment.drawText("Hallo verden", 500, 400);
 	}
 
 	@Override

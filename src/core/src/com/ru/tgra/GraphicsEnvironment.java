@@ -15,7 +15,7 @@ import java.nio.FloatBuffer;
 
 public class GraphicsEnvironment
 {
-    private static int renderingProgramID;
+    public static int renderingProgramID;
     private static int vertexShaderID;
     private static int fragmentShaderID;
     private static int vertexPointer;
@@ -92,7 +92,7 @@ public class GraphicsEnvironment
 
     public static void setModelMatrixScale(float xScale, float yScale)
     {
-        /*
+
         float[] sm = new float[16];
 
         sm[0] = xScale; sm[4] = 0.0f; sm[8] = 0.0f; sm[12] = 0.0f;
@@ -102,44 +102,18 @@ public class GraphicsEnvironment
 
         float[] newModelMatrix = multiplySquareMatrixAndBuffer(sm, modelMatrix, 4);
 
-        if (testing)
-        {
-            for (int i = 0; i < 4; i++)
-            {
-                for (int j = 0; j < 4; j++)
-                {
-                    int index = (j * 4) + i;
-
-                    System.out.print("|" + modelMatrix.get(index) + "|");
-                }
-
-                System.out.println();
-            }
-
-            for (int i = 0; i < 4; i++)
-            {
-                for (int j = 0; j < 4; j++)
-                {
-                    int index = (j * 4) + i;
-
-                    System.out.print("|" + newModelMatrix[index] + "|");
-                }
-
-                System.out.println();
-            }
-
-            testing = false;
-        }
-        */
-
-        modelMatrix.put(0, xScale);
-        modelMatrix.put(5, yScale);
+        modelMatrix.put(newModelMatrix);
+        modelMatrix.rewind();
 
         Gdx.gl.glUniformMatrix4fv(modelMatrixLoc, 1, false, modelMatrix);
     }
 
     public static void setModelMatrixRotation(float theta)
     {
+        float cos = (float) Math.cos(theta * Math.PI / 180.0);
+        float sin = (float) Math.sin(theta * Math.PI / 180.0);
+
+        /*
         float[] rm = new float[16];
 
         rm[0] = (float) Math.cos(theta * Math.PI / 180.0); rm[4] = (float) -Math.sin(theta * Math.PI / 180.0); rm[8] = 0.0f; rm[12] = 0.0f;
@@ -151,6 +125,12 @@ public class GraphicsEnvironment
 
         modelMatrix.put(newModelMatrix);
         modelMatrix.rewind();
+        */
+
+        modelMatrix.put(0, cos);
+        modelMatrix.put(1, sin);
+        modelMatrix.put(4, -sin);
+        modelMatrix.put(5, cos);
 
         Gdx.gl.glUniformMatrix4fv(modelMatrixLoc, 1, false, modelMatrix);
     }
@@ -185,6 +165,9 @@ public class GraphicsEnvironment
         batch.begin();
         font12.draw(batch, text, pos_x, pos_y);
         batch.end();
+
+        Gdx.gl.glUseProgram(renderingProgramID);
+        Gdx.gl.glEnableVertexAttribArray(vertexPointer);
     }
 
     /*
@@ -293,7 +276,7 @@ public class GraphicsEnvironment
 
                 for (int k = 0; k < rows; k++)
                 {
-                    sum = sum + modelMatrix.get(i * rows + k) * arrayMatrix[k * rows + j];
+                    sum = sum + arrayMatrix[i * rows + k] * bufferMatrix.get(k * rows + j);
                 }
 
                 resultMatrix[i * rows + j] = sum;
