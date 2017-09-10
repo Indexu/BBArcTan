@@ -5,17 +5,18 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.BufferUtils;
 import com.ru.tgra.shapes.CircleGraphic;
 import com.ru.tgra.shapes.RectangleGraphic;
-import com.sun.xml.internal.messaging.saaj.soap.GifDataContentHandler;
+import com.ru.tgra.utilities.Color;
+import com.ru.tgra.utilities.Point2D;
+import com.ru.tgra.utilities.Vector2D;
 
 import java.nio.FloatBuffer;
 
 public class GraphicsEnvironment
 {
-    public static int renderingProgramID;
+    private static int renderingProgramID;
     private static int vertexShaderID;
     private static int fragmentShaderID;
     private static int vertexPointer;
@@ -30,8 +31,6 @@ public class GraphicsEnvironment
 
     private static SpriteBatch batch;
     private static BitmapFont font12;
-
-    private static boolean testing = true;
 
     public static void setupGraphicsEnvironment()
     {
@@ -82,21 +81,21 @@ public class GraphicsEnvironment
         Gdx.gl.glUniformMatrix4fv(modelMatrixLoc, 1, false, modelMatrix);
     }
 
-    public static void setModelMatrixTranslation(float xTranslate, float yTranslate)
+    public static void setModelMatrixTranslation(Point2D translation)
     {
-        modelMatrix.put(12, xTranslate);
-        modelMatrix.put(13, yTranslate);
+        modelMatrix.put(12, translation.x);
+        modelMatrix.put(13, translation.y);
 
         Gdx.gl.glUniformMatrix4fv(modelMatrixLoc, 1, false, modelMatrix);
     }
 
-    public static void setModelMatrixScale(float xScale, float yScale)
+    public static void setModelMatrixScale(Vector2D scale)
     {
 
         float[] sm = new float[16];
 
-        sm[0] = xScale; sm[4] = 0.0f; sm[8] = 0.0f; sm[12] = 0.0f;
-        sm[1] = 0.0f; sm[5] = yScale; sm[9] = 0.0f; sm[13] = 0.0f;
+        sm[0] = scale.x; sm[4] = 0.0f; sm[8] = 0.0f; sm[12] = 0.0f;
+        sm[1] = 0.0f; sm[5] = scale.y; sm[9] = 0.0f; sm[13] = 0.0f;
         sm[2] = 0.0f; sm[6] = 0.0f; sm[10] = 1.0f; sm[14] = 0.0f;
         sm[3] = 0.0f; sm[7] = 0.0f; sm[11] = 0.0f; sm[15] = 1.0f;
 
@@ -110,22 +109,10 @@ public class GraphicsEnvironment
 
     public static void setModelMatrixRotation(float theta)
     {
-        float cos = (float) Math.cos(theta * Math.PI / 180.0);
-        float sin = (float) Math.sin(theta * Math.PI / 180.0);
+        double angle = theta * Math.PI / 180.0;
 
-        /*
-        float[] rm = new float[16];
-
-        rm[0] = (float) Math.cos(theta * Math.PI / 180.0); rm[4] = (float) -Math.sin(theta * Math.PI / 180.0); rm[8] = 0.0f; rm[12] = 0.0f;
-        rm[1] = (float) Math.sin(theta * Math.PI / 180.0); rm[5] = (float) Math.cos(theta * Math.PI / 180.0); rm[9] = 0.0f; rm[13] = 0.0f;
-        rm[2] = 0.0f; rm[6] = 0.0f; rm[10] = 1.0f; rm[14] = 0.0f;
-        rm[3] = 0.0f; rm[7] = 0.0f; rm[11] = 0.0f; rm[15] = 1.0f;
-
-        float[] newModelMatrix = multiplySquareMatrixAndBuffer(rm, modelMatrix, 4);
-
-        modelMatrix.put(newModelMatrix);
-        modelMatrix.rewind();
-        */
+        float cos = (float) Math.cos(angle);
+        float sin = (float) Math.sin(angle);
 
         modelMatrix.put(0, cos);
         modelMatrix.put(1, sin);
@@ -135,14 +122,14 @@ public class GraphicsEnvironment
         Gdx.gl.glUniformMatrix4fv(modelMatrixLoc, 1, false, modelMatrix);
     }
 
-    public static void setColor(float r, float g, float b, float a)
+    public static void setColor(Color color)
     {
-        Gdx.gl.glUniform4f(colorLoc, r, g, b, a);
+        Gdx.gl.glUniform4f(colorLoc, color.getRed(), color.getGreen(), color.getBlue(), color.getAalpha());
     }
 
-    public static void setClearColor(float r, float g, float b, float a)
+    public static void setClearColor(Color color)
     {
-        Gdx.gl.glClearColor(r, g, b, a);
+        Gdx.gl.glClearColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAalpha());
     }
 
     public static void clear()
@@ -160,10 +147,11 @@ public class GraphicsEnvironment
         return vertexPointer;
     }
 
-    public static void drawText(String text, float pos_x, float pos_y)
+    public static void drawText(Point2D position, String text, Color color)
     {
         batch.begin();
-        font12.draw(batch, text, pos_x, pos_y);
+        font12.draw(batch, text, position.x, position.y);
+        font12.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAalpha());
         batch.end();
 
         Gdx.gl.glUseProgram(renderingProgramID);
@@ -252,7 +240,7 @@ public class GraphicsEnvironment
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/RobotoMono-Regular.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 
-        parameter.size = 12;
+        parameter.size = 18;
 
         font12 = generator.generateFont(parameter);
         generator.dispose();

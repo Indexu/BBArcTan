@@ -3,31 +3,39 @@ package com.ru.tgra;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.ru.tgra.objects.Block;
+import com.ru.tgra.objects.GameObject;
+import com.ru.tgra.objects.particles.DestroyBlock;
 import com.ru.tgra.shapes.CircleGraphic;
 import com.ru.tgra.shapes.RectangleGraphic;
+import com.ru.tgra.utilities.Color;
+import com.ru.tgra.utilities.Point2D;
+import com.ru.tgra.utilities.Vector2D;
 
-import java.util.Random;
+import java.util.ArrayList;
 
 public class BBArcTanGame extends ApplicationAdapter
 {
-	private float position_x;
-	private float position_y;
-	private float speed;
-	private float scale_x = 50f;
-	private float scale_y = 200f;
+	private GameObject block;
+	private ArrayList<GameObject> gameObjects;
 
 	@Override
 	public void create ()
 	{
 		GraphicsEnvironment.setupGraphicsEnvironment();
 
-		GraphicsEnvironment.setClearColor(0.4f, 0.6f, 1.0f, 1.0f);
+        Color clearColor = new Color(0f, 0f, 0f, 1.0f);
+		GraphicsEnvironment.setClearColor(clearColor);
 
-		position_x = Gdx.graphics.getWidth() / 2;
-		position_y = Gdx.graphics.getHeight() / 2;
-		speed = 300f;
+		Color testColor = new Color(0.5f, 0f, 0, 1);
 
-		GraphicsEnvironment.setColor(0.3f, 0.2f, 0, 1);
+        block = new Block(new Point2D(250, 500), 5);
+        block.setScale(new Vector2D(70, 70));
+        block.setColor(testColor);
+
+        gameObjects = new ArrayList<GameObject>();
+
+        gameObjects.add(block);
 	}
 
 	private void update()
@@ -37,49 +45,17 @@ public class BBArcTanGame extends ApplicationAdapter
 		if(Gdx.input.justTouched())
 		{
 			//do mouse/touch input stuff
-			position_x = Gdx.input.getX();
-			position_y = Gdx.graphics.getHeight() - Gdx.input.getY();
+            float x = Gdx.input.getX();
+            float y = Gdx.graphics.getHeight() - Gdx.input.getY();
+
+            gameObjects.add(new DestroyBlock(new Point2D(x, y)));
 		}
 
 		//do all updates to the game
-
-		if (Gdx.input.isKeyPressed(Input.Keys.RIGHT))
-		{
-			position_x += speed * deltaTime;
-		}
-
-		if (Gdx.input.isKeyPressed(Input.Keys.LEFT))
-		{
-			position_x -= speed * deltaTime;
-		}
-
-		if (Gdx.input.isKeyPressed(Input.Keys.UP))
-		{
-			position_y += speed * deltaTime;
-		}
-
-		if (Gdx.input.isKeyPressed(Input.Keys.DOWN))
-		{
-			position_y -= speed * deltaTime;
-		}
-
-		if (Gdx.graphics.getHeight() < position_y + 50f)
-		{
-			position_y = Gdx.graphics.getHeight() - 50f;
-		}
-		else if (position_y - 50f < 0)
-		{
-			position_y = 50f;
-		}
-
-		if (Gdx.graphics.getWidth() < position_x + 50f)
-		{
-			position_x = Gdx.graphics.getWidth() - 50f;
-		}
-		else if (position_x - 50f < 0)
-		{
-			position_x = 50f;
-		}
+        for(GameObject gameObject : gameObjects)
+        {
+            gameObject.update(deltaTime);
+        }
 	}
 
 	private void display()
@@ -87,16 +63,10 @@ public class BBArcTanGame extends ApplicationAdapter
 
 		GraphicsEnvironment.clear();
 
-		GraphicsEnvironment.clearModelMatrix();
-
-        GraphicsEnvironment.setModelMatrixTranslation(position_x, position_y);
-        GraphicsEnvironment.setModelMatrixRotation(45);
-        GraphicsEnvironment.setModelMatrixScale(scale_x, scale_y);
-
-        GraphicsEnvironment.setColor(0.3f, 0.2f, 0, 1);
-        RectangleGraphic.drawSolid();
-
-        GraphicsEnvironment.drawText("Hallo verden", 500, 400);
+        for(GameObject gameObject : gameObjects)
+        {
+            gameObject.draw();
+        }
 	}
 
 	@Override
