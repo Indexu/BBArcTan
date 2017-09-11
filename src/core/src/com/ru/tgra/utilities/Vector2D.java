@@ -59,4 +59,10 @@ public class Vector2D {
     {
         return new Vector2D(P2.x-P1.x, P2.y-P1.y);
     }
+
+    @Override
+    public String toString()
+    {
+        return "x: " + x + " | y: " + y;
+    }
 }

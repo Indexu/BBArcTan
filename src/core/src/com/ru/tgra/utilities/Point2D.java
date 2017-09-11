@@ -29,6 +29,11 @@ public class Point2D {
         y += v.y;
     }
 
+    public Vector2D vectorBetweenPoints(Point2D point)
+    {
+        return new Vector2D(point.x - x, point.y - y);
+    }
+
     @Override
     public String toString()
     {

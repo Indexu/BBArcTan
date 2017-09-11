@@ -9,20 +9,33 @@ import java.nio.FloatBuffer;
 public class RectangleGraphic
 {
     private static FloatBuffer vertexBuffer;
+    private static FloatBuffer vertexBufferCenter;
+    private static FloatBuffer vertexBufferOffset;
     private static int vertexPointer;
 
     public static void create(int vertexPointer)
     {
         RectangleGraphic.vertexPointer = vertexPointer;
 
-        float[] array = {-0.5f, -0.5f,
+        float[] center = {-0.5f, -0.5f,
                 -0.5f, 0.5f,
                 0.5f, 0.5f,
                 0.5f, -0.5f};
 
-        vertexBuffer = BufferUtils.newFloatBuffer(8);
-        vertexBuffer.put(array);
-        vertexBuffer.rewind();
+        vertexBufferCenter = BufferUtils.newFloatBuffer(8);
+        vertexBufferCenter.put(center);
+        vertexBufferCenter.rewind();
+
+        float[] offset = {-0.5f, 0.0f,
+                -0.5f, 1f,
+                0.5f, 1f,
+                0.5f, 0f};
+
+        vertexBufferOffset = BufferUtils.newFloatBuffer(8);
+        vertexBufferOffset.put(offset);
+        vertexBufferOffset.rewind();
+
+        vertexBuffer = vertexBufferCenter;
     }
 
     public static void drawSolid()
@@ -37,5 +50,10 @@ public class RectangleGraphic
         Gdx.gl.glVertexAttribPointer(vertexPointer, 2, GL20.GL_FLOAT,
                 false, 0, vertexBuffer);
         Gdx.gl.glDrawArrays(GL20.GL_LINE_LOOP, 0, 4);
+    }
+
+    public static void setVertexBuffer(boolean center)
+    {
+        vertexBuffer = (center ? vertexBufferCenter : vertexBufferOffset);
     }
 }

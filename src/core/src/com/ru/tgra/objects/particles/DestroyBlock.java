@@ -5,8 +5,8 @@ import com.ru.tgra.utilities.Point2D;
 
 public class DestroyBlock extends GameObject
 {
-    private final int numberOfBlocks = 10;
-    private final float lifespan = 0.5f;
+    private final int numberOfBlocks = 15;
+    private final float lifespan = 0.75f;
 
     private GameObject[] particleBlocks;
     private float lifetime;
@@ -48,8 +48,8 @@ public class DestroyBlock extends GameObject
         }
         else
         {
-            // TODO: Destroy this object
             particleBlocks = null;
+            this.destroy();
         }
     }
 }
