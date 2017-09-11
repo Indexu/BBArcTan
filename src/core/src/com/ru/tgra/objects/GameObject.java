@@ -2,8 +2,10 @@ package com.ru.tgra.objects;
 
 import com.ru.tgra.GraphicsEnvironment;
 import com.ru.tgra.utilities.Color;
+import com.ru.tgra.utilities.ModelMatrix;
 import com.ru.tgra.utilities.Point2D;
 import com.ru.tgra.utilities.Vector2D;
+import com.sun.org.apache.xpath.internal.operations.Mod;
 
 public abstract class GameObject
 {
@@ -40,14 +42,21 @@ public abstract class GameObject
 
     public void draw()
     {
-        GraphicsEnvironment.clearModelMatrix();
-        GraphicsEnvironment.setModelMatrixTranslation(position);
-        GraphicsEnvironment.setModelMatrixRotation(rotation);
-        GraphicsEnvironment.setModelMatrixScale(scale);
+        ModelMatrix.main.loadIdentityMatrix();
+        ModelMatrix.main.addTranslation(position);
+        ModelMatrix.main.addRotationZ(rotation);
+        ModelMatrix.main.addScale(scale);
+        ModelMatrix.main.setShaderMatrix(GraphicsEnvironment.getModelMatrixLoc());
+
         GraphicsEnvironment.setColor(color);
     }
 
     public abstract void update(float deltaTime);
+
+    public Point2D[] getPoints()
+    {
+        return null;
+    }
 
     public void destroy()
     {

@@ -8,6 +8,7 @@ import com.ru.tgra.objects.particles.DestroyBlock;
 import com.ru.tgra.shapes.CircleGraphic;
 import com.ru.tgra.shapes.RectangleGraphic;
 import com.ru.tgra.utilities.Color;
+import com.ru.tgra.utilities.ModelMatrix;
 import com.ru.tgra.utilities.Point2D;
 import com.ru.tgra.utilities.Vector2D;
 
@@ -25,9 +26,10 @@ public class BBArcTanGame extends ApplicationAdapter
 		GraphicsEnvironment.setupGraphicsEnvironment();
 		GameState.initGameState();
         gameObjects = new ArrayList<>();
+        ModelMatrix.main = new ModelMatrix();
 
         Color aimerColor = new Color(0.5f, 0.5f, 0.5f, 1);
-        Point2D aimerPos = new Point2D(Gdx.graphics.getWidth(), 50);
+        Point2D aimerPos = new Point2D(Gdx.graphics.getWidth() / 2, 50);
         aimer = new Aimer(aimerPos, aimerColor);
 
         Color clearColor = new Color(0f, 0f, 0f, 1.0f);
@@ -65,7 +67,7 @@ public class BBArcTanGame extends ApplicationAdapter
             Vector2D direction = aimer.getPosition().vectorBetweenPoints(new Point2D(mouseX, mouseY));
             direction.normalize();
 
-            GameObject ball = new Ball(new Point2D(aimer.getPosition()), direction, 600);
+            GameObject ball = new Ball(new Point2D(aimer.getPosition()), direction, Settings.BallSpeed);
 
             gameObjects.add(ball);
 		}

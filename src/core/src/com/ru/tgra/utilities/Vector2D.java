@@ -17,6 +17,12 @@ public class Vector2D {
         this.y = y;
     }
 
+    public Vector2D(Vector2D v)
+    {
+        this.x = v.x;
+        this.y = v.y;
+    }
+
     public void scale(float S)
     {
         x *= S;
@@ -53,6 +59,11 @@ public class Vector2D {
             x = x / len;
             y = y / len;
         }
+    }
+
+    public Vector2D getPerp()
+    {
+        return new Vector2D(y, -x);
     }
 
     public static Vector2D difference(Point2D P2, Point2D P1)

@@ -34,6 +34,11 @@ public class Point2D {
         return new Vector2D(point.x - x, point.y - y);
     }
 
+    public static Point2D additionVector(Point2D p, Vector2D v)
+    {
+        return new Point2D(p.x + v.x, p.y + v.y);
+    }
+
     @Override
     public String toString()
     {

@@ -59,69 +59,6 @@ public class GraphicsEnvironment
         Gdx.gl.glUniformMatrix4fv(projectionMatrixLoc, 1, false, projectionMatrix);
     }
 
-    public static void clearModelMatrix()
-    {
-        modelMatrix.put(0, 1.0f);
-        modelMatrix.put(1, 0.0f);
-        modelMatrix.put(2, 0.0f);
-        modelMatrix.put(3, 0.0f);
-        modelMatrix.put(4, 0.0f);
-        modelMatrix.put(5, 1.0f);
-        modelMatrix.put(6, 0.0f);
-        modelMatrix.put(7, 0.0f);
-        modelMatrix.put(8, 0.0f);
-        modelMatrix.put(9, 0.0f);
-        modelMatrix.put(10, 1.0f);
-        modelMatrix.put(11, 0.0f);
-        modelMatrix.put(12, 0.0f);
-        modelMatrix.put(13, 0.0f);
-        modelMatrix.put(14, 0.0f);
-        modelMatrix.put(15, 1.0f);
-
-        Gdx.gl.glUniformMatrix4fv(modelMatrixLoc, 1, false, modelMatrix);
-    }
-
-    public static void setModelMatrixTranslation(Point2D translation)
-    {
-        modelMatrix.put(12, translation.x);
-        modelMatrix.put(13, translation.y);
-
-        Gdx.gl.glUniformMatrix4fv(modelMatrixLoc, 1, false, modelMatrix);
-    }
-
-    public static void setModelMatrixScale(Vector2D scale)
-    {
-
-        float[] sm = new float[16];
-
-        sm[0] = scale.x; sm[4] = 0.0f; sm[8] = 0.0f; sm[12] = 0.0f;
-        sm[1] = 0.0f; sm[5] = scale.y; sm[9] = 0.0f; sm[13] = 0.0f;
-        sm[2] = 0.0f; sm[6] = 0.0f; sm[10] = 1.0f; sm[14] = 0.0f;
-        sm[3] = 0.0f; sm[7] = 0.0f; sm[11] = 0.0f; sm[15] = 1.0f;
-
-        float[] newModelMatrix = multiplySquareMatrixAndBuffer(sm, modelMatrix, 4);
-
-        modelMatrix.put(newModelMatrix);
-        modelMatrix.rewind();
-
-        Gdx.gl.glUniformMatrix4fv(modelMatrixLoc, 1, false, modelMatrix);
-    }
-
-    public static void setModelMatrixRotation(float theta)
-    {
-        double angle = theta * Math.PI / 180.0;
-
-        float cos = (float) Math.cos(angle);
-        float sin = (float) Math.sin(angle);
-
-        modelMatrix.put(0, cos);
-        modelMatrix.put(1, sin);
-        modelMatrix.put(4, -sin);
-        modelMatrix.put(5, cos);
-
-        Gdx.gl.glUniformMatrix4fv(modelMatrixLoc, 1, false, modelMatrix);
-    }
-
     public static void setColor(Color color)
     {
         Gdx.gl.glUniform4f(colorLoc, color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
@@ -272,5 +209,10 @@ public class GraphicsEnvironment
         }
 
         return resultMatrix;
+    }
+
+    public static int getModelMatrixLoc()
+    {
+        return modelMatrixLoc;
     }
 }

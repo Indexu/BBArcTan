@@ -1,13 +1,11 @@
 package com.ru.tgra.objects.particles;
 
+import com.ru.tgra.Settings;
 import com.ru.tgra.objects.GameObject;
 import com.ru.tgra.utilities.Point2D;
 
 public class DestroyBlock extends GameObject
 {
-    private final int numberOfBlocks = 15;
-    private final float lifespan = 0.75f;
-
     private GameObject[] particleBlocks;
     private float lifetime;
 
@@ -15,9 +13,9 @@ public class DestroyBlock extends GameObject
     {
         super();
 
-        particleBlocks = new GameObject[numberOfBlocks];
+        particleBlocks = new GameObject[Settings.DestroyBlockNumberOfParticles];
 
-        for(int i = 0; i < numberOfBlocks; i++)
+        for(int i = 0; i < Settings.DestroyBlockNumberOfParticles; i++)
         {
             particleBlocks[i] = new SquareParticle(new Point2D(position));
         }
@@ -28,7 +26,7 @@ public class DestroyBlock extends GameObject
     {
         if (particleBlocks != null)
         {
-            for(int i = 0; i < numberOfBlocks; i++)
+            for(int i = 0; i < Settings.DestroyBlockNumberOfParticles; i++)
             {
                 particleBlocks[i].draw();
             }
@@ -39,9 +37,9 @@ public class DestroyBlock extends GameObject
     {
         lifetime += deltaTime;
 
-        if (lifetime < lifespan)
+        if (lifetime < Settings.DestroyBlockLifespan)
         {
-            for(int i = 0; i < numberOfBlocks; i++)
+            for(int i = 0; i < Settings.DestroyBlockNumberOfParticles; i++)
             {
                 particleBlocks[i].update(deltaTime);
             }
