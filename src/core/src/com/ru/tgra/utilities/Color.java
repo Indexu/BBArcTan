@@ -45,7 +45,7 @@ public class Color
         this.b = b;
     }
 
-    public float getAalpha()
+    public float getAlpha()
     {
         return a;
     }

@@ -6,7 +6,7 @@ public class RandomGenerator
 {
     private static Random rand = new Random();
 
-    public static float RandomNumberInRange(float min, float max)
+    public static float randomNumberInRange(float min, float max)
     {
         return rand.nextFloat() * (max - min) + min;
     }

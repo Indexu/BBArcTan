@@ -6,7 +6,7 @@ import com.ru.tgra.utilities.Point2D;
 public class DestroyBlock extends GameObject
 {
     private final int numberOfBlocks = 10;
-    private final float lifespan = 3;
+    private final float lifespan = 0.5f;
 
     private GameObject[] particleBlocks;
     private float lifetime;
@@ -15,24 +15,23 @@ public class DestroyBlock extends GameObject
     {
         super();
 
-        this.position = position;
-
         particleBlocks = new GameObject[numberOfBlocks];
 
         for(int i = 0; i < numberOfBlocks; i++)
         {
-            particleBlocks[i] = new SquareParticle(position);
+            particleBlocks[i] = new SquareParticle(new Point2D(position));
         }
     }
 
     @Override
     public void draw()
     {
-        super.draw();
-
-        for(int i = 0; i < numberOfBlocks; i++)
+        if (particleBlocks != null)
         {
-            particleBlocks[i].draw();
+            for(int i = 0; i < numberOfBlocks; i++)
+            {
+                particleBlocks[i].draw();
+            }
         }
     }
 
@@ -49,7 +48,8 @@ public class DestroyBlock extends GameObject
         }
         else
         {
-            // TODO
+            // TODO: Destroy this object
+            particleBlocks = null;
         }
     }
 }

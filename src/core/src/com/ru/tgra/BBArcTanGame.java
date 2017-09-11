@@ -60,7 +60,6 @@ public class BBArcTanGame extends ApplicationAdapter
 
 	private void display()
 	{
-
 		GraphicsEnvironment.clear();
 
         for(GameObject gameObject : gameObjects)

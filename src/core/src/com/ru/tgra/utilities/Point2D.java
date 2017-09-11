@@ -17,9 +17,21 @@ public class Point2D {
         this.y = y;
     }
 
+    public Point2D(Point2D point)
+    {
+        this.x = point.x;
+        this.y = point.y;
+    }
+
     public void add(Vector2D v)
     {
         x += v.x;
         y += v.y;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "x: " + x + " | y: " + y;
     }
 }

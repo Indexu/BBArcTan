@@ -124,12 +124,12 @@ public class GraphicsEnvironment
 
     public static void setColor(Color color)
     {
-        Gdx.gl.glUniform4f(colorLoc, color.getRed(), color.getGreen(), color.getBlue(), color.getAalpha());
+        Gdx.gl.glUniform4f(colorLoc, color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
     }
 
     public static void setClearColor(Color color)
     {
-        Gdx.gl.glClearColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAalpha());
+        Gdx.gl.glClearColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
     }
 
     public static void clear()
@@ -151,7 +151,7 @@ public class GraphicsEnvironment
     {
         batch.begin();
         font12.draw(batch, text, position.x, position.y);
-        font12.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAalpha());
+        font12.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
         batch.end();
 
         Gdx.gl.glUseProgram(renderingProgramID);

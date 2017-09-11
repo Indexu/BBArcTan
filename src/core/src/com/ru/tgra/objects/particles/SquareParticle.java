@@ -13,25 +13,24 @@ public class SquareParticle extends GameObject
     {
         super();
 
-        float r = RandomGenerator.RandomNumberInRange(0, 1);
-        float g = RandomGenerator.RandomNumberInRange(0, 1);
-        float b = RandomGenerator.RandomNumberInRange(0, 1);
+        float r = RandomGenerator.randomNumberInRange(0, 1);
+        float g = RandomGenerator.randomNumberInRange(0, 1);
+        float b = RandomGenerator.randomNumberInRange(0, 1);
 
         Color color = new Color(r, g, b, 1);
 
-        float dirX = RandomGenerator.RandomNumberInRange(0, 1);
-        float dirY = RandomGenerator.RandomNumberInRange(0, 1);
+        float dirX = RandomGenerator.randomNumberInRange(-1, 1);
+        float dirY = RandomGenerator.randomNumberInRange(-1, 1);
 
         Vector2D direction = new Vector2D(dirX, dirY);
 
-        float speed = RandomGenerator.RandomNumberInRange(50, 150);
-        float size = RandomGenerator.RandomNumberInRange(10, 25);
+        float speed = RandomGenerator.randomNumberInRange(50, 150);
+        float size = RandomGenerator.randomNumberInRange(10, 25);
 
         Vector2D scale = new Vector2D(size, size);
 
         this.position = position;
         this.direction = direction;
-        this.direction.normalize();
         this.speed = speed;
         this.scale = scale;
         this.color = color;
@@ -49,5 +48,7 @@ public class SquareParticle extends GameObject
     {
         position.x += direction.x * speed * deltaTime;
         position.y += direction.y * speed * deltaTime;
+
+        color.setAlpha(color.getAlpha() - deltaTime);
     }
 }
