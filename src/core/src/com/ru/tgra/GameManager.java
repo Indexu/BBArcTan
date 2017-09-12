@@ -6,10 +6,8 @@ import com.ru.tgra.objects.Block;
 import com.ru.tgra.objects.GameObject;
 import com.ru.tgra.objects.GridObject;
 import com.ru.tgra.objects.particles.DestroyBlock;
-import com.ru.tgra.utilities.Color;
-import com.ru.tgra.utilities.Point2D;
-import com.ru.tgra.utilities.RandomGenerator;
-import com.ru.tgra.utilities.Vector2D;
+import com.ru.tgra.objects.powerups.BallUp;
+import com.ru.tgra.utilities.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,6 +24,7 @@ public class GameManager
     public static int shots;
     public static int score;
     public static int round;
+    public static boolean firstDestroyedBall;
 
     private static int ballsInPlay;
     private static Point2D[][] grid;
@@ -40,6 +39,7 @@ public class GameManager
         roundInProgress = true;
         aimingInProgress = true;
         shootingInProgress = false;
+        firstDestroyedBall = true;
 
         shots = Settings.initialShots;
         score = 0;
@@ -104,9 +104,17 @@ public class GameManager
         aimer.setRotation(-rotation);
     }
 
-    public static void ballDestroyed()
+    public static void ballDestroyed(Point2D position)
     {
         ballsInPlay--;
+
+        if (firstDestroyedBall)
+        {
+            float width = Gdx.graphics.getWidth();
+            aimer.getPosition().x = MathUtils.clamp(position.x, width / 8, width - (width / 8));
+
+            firstDestroyedBall = false;
+        }
 
         if (ballsInPlay == 0)
         {
@@ -121,6 +129,7 @@ public class GameManager
             nextRound();
             roundInProgress = true;
             aimingInProgress = true;
+            firstDestroyedBall = true;
         }
     }
 
@@ -150,11 +159,13 @@ public class GameManager
     private static void addRow()
     {
         int blocksAdded;
+        boolean ballUpAdded;
         GameObject[] objectsToAdd = new GameObject[Settings.cols];
 
         do
         {
             blocksAdded = 0;
+            ballUpAdded = false;
             Arrays.fill(objectsToAdd, null);
 
             for (int i = 0; i < Settings.cols; i++)
@@ -165,8 +176,17 @@ public class GameManager
 
                 float rand = RandomGenerator.randomNumberInRange(0, 1);
 
+                // Ball up
+                if (!ballUpAdded && Settings.chanceOfBallUp < rand)
+                {
+                    BallUp ballUp = new BallUp(position, row, i);
+
+                    objectsToAdd[i] = ballUp;
+
+                    ballUpAdded = true;
+                }
                 // Block
-                if (Settings.chanceOfBlock < rand)
+                else if (Settings.chanceOfBlock < rand && blocksAdded != Settings.maximumNumberOfBlocksPerRow)
                 {
                     Color testColor = new Color(0.5f, 0f, 0, 1);
 
@@ -179,7 +199,7 @@ public class GameManager
                 }
             }
 
-        } while(blocksAdded < Settings.minimumNumberOfBlocksPerRow);
+        } while(blocksAdded <= Settings.minimumNumberOfBlocksPerRow || !ballUpAdded);
 
         for (int i = 0; i < Settings.cols; i++)
         {

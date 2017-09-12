@@ -15,6 +15,14 @@ public class Color
         this.a = alpha;
     }
 
+    public Color(Color color)
+    {
+        this.r = color.r;
+        this.g = color.g;
+        this.b = color.b;
+        this.a = color.a;
+    }
+
     public float getRed()
     {
         return r;

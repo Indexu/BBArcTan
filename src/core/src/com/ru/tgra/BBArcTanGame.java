@@ -23,17 +23,16 @@ public class BBArcTanGame extends ApplicationAdapter
 		GraphicsEnvironment.setupGraphicsEnvironment();
         ModelMatrix.main = new ModelMatrix();
         GameManager.initGameManager();
+        AudioManager.initSoundManager();
 
         Color aimerColor = new Color(0.5f, 0.5f, 0.5f, 1);
         Point2D aimerPos = new Point2D(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 8);
         GameManager.aimer = new Aimer(aimerPos, aimerColor);
 
-        Color clearColor = new Color(0f, 0f, 0f, 1.0f);
-		GraphicsEnvironment.setClearColor(clearColor);
+		GraphicsEnvironment.setClearColor(Settings.BackgroundColor);
 
         GameObject layout = new Layout(new Point2D(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 24));
 
-        GameManager.gameObjects.add(GameManager.aimer);
         GameManager.gameObjects.add(layout);
 
         shotTimer = 0.0f;
@@ -87,6 +86,8 @@ public class BBArcTanGame extends ApplicationAdapter
             gameObject.update(deltaTime);
         }
 
+        GameManager.aimer.update(deltaTime);
+
         // Create particles
         for (Point2D point : GameManager.getDestroyBlockParticlesCoors())
         {
@@ -110,6 +111,8 @@ public class BBArcTanGame extends ApplicationAdapter
         {
             gameObject.draw();
         }
+
+        GameManager.aimer.draw();
 	}
 
 	@Override

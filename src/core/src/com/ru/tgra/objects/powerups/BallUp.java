@@ -1,29 +1,25 @@
-package com.ru.tgra.objects;
+package com.ru.tgra.objects.powerups;
 
-import com.ru.tgra.AudioManager;
 import com.ru.tgra.GameManager;
 import com.ru.tgra.GraphicsEnvironment;
 import com.ru.tgra.Settings;
-import com.ru.tgra.shapes.CircleGraphic;
+import com.ru.tgra.objects.GridObject;
 import com.ru.tgra.shapes.RectangleGraphic;
-import com.ru.tgra.utilities.*;
+import com.ru.tgra.utilities.Color;
+import com.ru.tgra.utilities.Point2D;
 
-public class Block extends GridObject
+public class BallUp extends GridObject
 {
-    private int health;
-    private Vector2D smallScale;
-
-    public Block(Point2D position, int health, int row, int col)
+    public BallUp(Point2D position, int row, int col)
     {
         super();
 
         this.position = position;
-        this.health = health;
 
-        scale.x = Settings.BlockSize;
-        scale.y = Settings.BlockSize;
+        scale.x = Settings.PowerUpSize;
+        scale.y = Settings.PowerUpSize;
 
-        smallScale = new Vector2D(Settings.BlockSize / 1.2f, Settings.BlockSize / 1.2f);
+        color = Settings.BallUpColor;
 
         this.row = row;
         this.col = col;
@@ -34,19 +30,9 @@ public class Block extends GridObject
     {
         super.draw();
 
-        RectangleGraphic.drawSolid();
+        RectangleGraphic.drawOutline();
 
-        ModelMatrix.main.loadIdentityMatrix();
-        ModelMatrix.main.addTranslation(position);
-        ModelMatrix.main.addRotationZ(rotation);
-        ModelMatrix.main.addScale(smallScale);
-        ModelMatrix.main.setShaderMatrix(GraphicsEnvironment.getModelMatrixLoc());
-
-        GraphicsEnvironment.setColor(Settings.BackgroundColor);
-
-        RectangleGraphic.drawSolid();
-
-        GraphicsEnvironment.drawText(new Point2D(position.x - Settings.BlockTextOffset, position.y + Settings.BlockTextOffset), Integer.toString(health), color);
+        GraphicsEnvironment.drawText(new Point2D(position.x - Settings.BlockTextOffset, position.y + Settings.BlockTextOffset), "+", color);
 
         /*
         for (Point2D point : getPoints())
@@ -83,14 +69,7 @@ public class Block extends GridObject
 
     public void hit()
     {
-        health--;
-
-        AudioManager.playBlockHit();
-
-        if (health == 0)
-        {
-            GameManager.addDestroyBlockParticles(position);
-            this.destroy();
-        }
+        GameManager.increaseShots();
+        this.destroy();
     }
 }

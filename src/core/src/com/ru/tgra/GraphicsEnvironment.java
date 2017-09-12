@@ -74,21 +74,11 @@ public class GraphicsEnvironment
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
     }
 
-    public static FloatBuffer getVertexBuffer()
-    {
-        return vertexBuffer;
-    }
-
-    public static int getVertexPointer()
-    {
-        return vertexPointer;
-    }
-
     public static void drawText(Point2D position, String text, Color color)
     {
         batch.begin();
-        font12.draw(batch, text, position.x, position.y);
         font12.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+        font12.draw(batch, text, position.x, position.y);
         batch.end();
 
         Gdx.gl.glUseProgram(renderingProgramID);

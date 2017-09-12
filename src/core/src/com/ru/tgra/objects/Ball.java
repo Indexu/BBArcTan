@@ -3,6 +3,7 @@ package com.ru.tgra.objects;
 import com.ru.tgra.GameManager;
 import com.ru.tgra.GraphicsEnvironment;
 import com.ru.tgra.Settings;
+import com.ru.tgra.objects.powerups.BallUp;
 import com.ru.tgra.shapes.CircleGraphic;
 import com.ru.tgra.utilities.*;
 
@@ -131,34 +132,30 @@ public class Ball extends GameObject
             // Grid objects
             for (GridObject gridObject : GameManager.gridObjects)
             {
-                if (gridObject instanceof Block)
+                Point2D[] points = gridObject.getPoints();
+
+                for (int i = 0; i < 4; i++)
                 {
-                    Block block = (Block) gridObject;
-                    Point2D[] points = block.getPoints();
+                    int j = (i + 1) % 4;
 
-                    for (int i = 0; i < 4; i++)
+                    Point2D p1 = points[i];
+                    Point2D p2 = points[j];
+
+                    float tHit = Collisions.calculateTHit(A, p1, p2, direction);
+
+                    if (0 < tHit && tHit < min_tHit)
                     {
-                        int j = (i + 1) % 4;
+                        pHit = Collisions.calculatePHit(A, direction, tHit);
 
-                        Point2D p1 = points[i];
-                        Point2D p2 = points[j];
+                        boolean onLine = pHit.isBetween(p1, p2);
 
-                        float tHit = Collisions.calculateTHit(A, p1, p2, direction);
-
-                        if (0 < tHit && tHit < min_tHit)
+                        if (onLine)
                         {
-                            pHit = Collisions.calculatePHit(A, direction, tHit);
-
-                            boolean onLine = pHit.isBetween(p1, p2);
-
-                            if (onLine)
-                            {
-                                min_tHit = tHit;
-                                Vector2D v = p1.vectorBetweenPoints(p2);
-                                n = v.getPerp();
-                                hitObject = gridObject;
-                                bottomHit = false;
-                            }
+                            min_tHit = tHit;
+                            Vector2D v = p1.vectorBetweenPoints(p2);
+                            n = v.getPerp();
+                            hitObject = gridObject;
+                            bottomHit = false;
                         }
                     }
                 }
@@ -172,7 +169,7 @@ public class Ball extends GameObject
 
             if (bottomHit)
             {
-                GameManager.ballDestroyed();
+                GameManager.ballDestroyed(position);
                 this.destroy();
                 return;
             }
@@ -180,6 +177,12 @@ public class Ball extends GameObject
             if (hitObject != null)
             {
                 hitObject.hit();
+
+                if (hitObject instanceof BallUp)
+                {
+                    move(moveScalar);
+                    return;
+                }
             }
 
             this.direction = Collisions.calculateReflectionVector(direction, n);
