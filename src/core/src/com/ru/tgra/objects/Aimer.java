@@ -1,5 +1,6 @@
 package com.ru.tgra.objects;
 
+import com.ru.tgra.GameManager;
 import com.ru.tgra.shapes.RectangleGraphic;
 import com.ru.tgra.utilities.Color;
 import com.ru.tgra.utilities.Point2D;
@@ -20,11 +21,14 @@ public class Aimer extends GameObject
     @Override
     public void draw()
     {
-        super.draw();
+        if (GameManager.aimingInProgress && !GameManager.gameOver)
+        {
+            super.draw();
 
-        RectangleGraphic.setVertexBuffer(false);
-        RectangleGraphic.drawSolid();
-        RectangleGraphic.setVertexBuffer(true);
+            RectangleGraphic.setVertexBuffer(false);
+            RectangleGraphic.drawSolid();
+            RectangleGraphic.setVertexBuffer(true);
+        }
     }
 
     public void update(float deltaTime)

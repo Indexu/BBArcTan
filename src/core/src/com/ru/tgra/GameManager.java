@@ -1,6 +1,7 @@
 package com.ru.tgra;
 
 import com.badlogic.gdx.Gdx;
+import com.ru.tgra.objects.Ball;
 import com.ru.tgra.objects.Block;
 import com.ru.tgra.objects.GameObject;
 import com.ru.tgra.objects.GridObject;
@@ -8,6 +9,7 @@ import com.ru.tgra.objects.particles.DestroyBlock;
 import com.ru.tgra.utilities.Color;
 import com.ru.tgra.utilities.Point2D;
 import com.ru.tgra.utilities.RandomGenerator;
+import com.ru.tgra.utilities.Vector2D;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,12 +19,17 @@ public class GameManager
     public static ArrayList<GameObject> gameObjects;
     public static ArrayList<GridObject> gridObjects;
     public static boolean gameOver;
+    public static boolean roundInProgress;
+    public static boolean shootingInProgress;
+    public static boolean aimingInProgress;
+    public static GameObject aimer;
+    public static int shots;
+    public static int score;
+    public static int round;
 
+    private static int ballsInPlay;
     private static Point2D[][] grid;
     private static ArrayList<Point2D> destroyBlockParticlesCoords;
-
-    private static int shots;
-    private static int score;
 
     public static void initGameManager()
     {
@@ -30,9 +37,14 @@ public class GameManager
         gridObjects = new ArrayList<>();
         destroyBlockParticlesCoords = new ArrayList<>();
         gameOver = false;
+        roundInProgress = true;
+        aimingInProgress = true;
+        shootingInProgress = false;
 
         shots = Settings.initialShots;
         score = 0;
+        ballsInPlay = 0;
+        round = 0;
 
         initGrid();
     }
@@ -47,6 +59,7 @@ public class GameManager
         }
         else
         {
+            round++;
             addRow();
         }
     }
@@ -72,15 +85,59 @@ public class GameManager
         destroyBlockParticlesCoords.clear();
     }
 
+    public static void spawnBall(Vector2D direction)
+    {
+        GameObject ball = new Ball(new Point2D(aimer.getPosition()), direction, Settings.BallSpeed);
+
+        gameObjects.add(ball);
+
+        ballsInPlay++;
+    }
+
+    public static void setAimerRotation(float mouseX, float mouseY)
+    {
+        float x = aimer.getPosition().x;
+        float y = aimer.getPosition().y;
+
+        float rotation = (float) ( 270 - Math.atan2((double) (y - mouseY), (double)(x - mouseX)) * (180 / Math.PI));
+
+        aimer.setRotation(-rotation);
+    }
+
+    public static void ballDestroyed()
+    {
+        ballsInPlay--;
+
+        if (ballsInPlay == 0)
+        {
+            roundInProgress = false;
+        }
+    }
+
+    public static void checkIfNextRound()
+    {
+        if (ballsInPlay == 0 && !roundInProgress)
+        {
+            nextRound();
+            roundInProgress = true;
+            aimingInProgress = true;
+        }
+    }
+
     private static void shiftRows()
     {
+        if (gameOver)
+        {
+            return;
+        }
+
         for (GridObject gridObject : gridObjects)
         {
             int row = gridObject.getRow() - 1;
 
             if (!gameOver)
             {
-                gameOver = (row == 0);
+                gameOver = (row == 1);
             }
 
             Point2D newPos = grid[row][gridObject.getCol()];
@@ -113,7 +170,7 @@ public class GameManager
                 {
                     Color testColor = new Color(0.5f, 0f, 0, 1);
 
-                    Block block = new Block(position, 5, row, i);
+                    Block block = new Block(position, round, row, i);
                     block.setColor(testColor);
 
                     objectsToAdd[i] = block;

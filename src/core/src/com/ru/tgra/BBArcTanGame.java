@@ -13,8 +13,9 @@ import java.util.ArrayList;
 
 public class BBArcTanGame extends ApplicationAdapter
 {
-	private GameObject block;
-	private GameObject aimer;
+	private float shotTimer;
+	private Vector2D shootDirection;
+	private int ballsShot;
 
 	@Override
 	public void create ()
@@ -25,15 +26,24 @@ public class BBArcTanGame extends ApplicationAdapter
 
         Color aimerColor = new Color(0.5f, 0.5f, 0.5f, 1);
         Point2D aimerPos = new Point2D(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 8);
-        aimer = new Aimer(aimerPos, aimerColor);
+        GameManager.aimer = new Aimer(aimerPos, aimerColor);
 
         Color clearColor = new Color(0f, 0f, 0f, 1.0f);
 		GraphicsEnvironment.setClearColor(clearColor);
 
         GameObject layout = new Layout(new Point2D(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 24));
 
-        GameManager.gameObjects.add(aimer);
+        GameManager.gameObjects.add(GameManager.aimer);
         GameManager.gameObjects.add(layout);
+
+        shotTimer = 0.0f;
+        shootDirection = new Vector2D();
+        ballsShot = 0;
+
+        for (int i = 0; i < Settings.initialRows; i++)
+        {
+            GameManager.nextRound();
+        }
 	}
 
 	private void update()
@@ -43,18 +53,26 @@ public class BBArcTanGame extends ApplicationAdapter
         float mouseX = Gdx.input.getX();
         float mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
 
-        setAimerRotation(mouseX, mouseY);
+	    if (!GameManager.gameOver)
+        {
+            GameManager.setAimerRotation(mouseX, mouseY);
+        }
 
+        // Input
 		if(Gdx.input.justTouched())
 		{
-            // GameManager.nextRound();
-
-			//do mouse/touch input stuff
-
             // GameManager.gameObjects.add(new DestroyBlock(new Point2D(mouseX, mouseY)));
 
-            shoot(mouseX, mouseY);
+            if (GameManager.aimingInProgress && !GameManager.gameOver)
+            {
+                shoot(mouseX, mouseY);
+            }
 		}
+
+		if (GameManager.shootingInProgress)
+        {
+            shootingInProgress(deltaTime);
+        }
 
 		//do all updates to the game
         for(GameObject gameObject : GameManager.gameObjects)
@@ -80,6 +98,8 @@ public class BBArcTanGame extends ApplicationAdapter
 
         // Remove destroyed game objects
         GameManager.removeDestroyed();
+
+        GameManager.checkIfNextRound();
 	}
 
 	private void display()
@@ -99,23 +119,32 @@ public class BBArcTanGame extends ApplicationAdapter
 		display();
 	}
 
-	private void setAimerRotation(float mouseX, float mouseY)
-    {
-        float x = aimer.getPosition().x;
-        float y = aimer.getPosition().y;
 
-        float rotation = (float) ( 270 - Math.atan2((double) (y - mouseY), (double)(x - mouseX)) * (180 / Math.PI));
-
-        aimer.setRotation(-rotation);
-    }
 
     private void shoot(float mouseX, float mouseY)
     {
-        Vector2D direction = aimer.getPosition().vectorBetweenPoints(new Point2D(mouseX, mouseY));
-        direction.normalize();
+        shootDirection = GameManager.aimer.getPosition().vectorBetweenPoints(new Point2D(mouseX, mouseY));
+        shootDirection.normalize();
 
-        GameObject ball = new Ball(new Point2D(aimer.getPosition()), direction, Settings.BallSpeed);
+        GameManager.aimingInProgress = false;
+        GameManager.shootingInProgress = true;
+    }
 
-        GameManager.gameObjects.add(ball);
+    private void shootingInProgress(float deltatime)
+    {
+        shotTimer += deltatime;
+
+        if (Settings.timeBetweenShots <= shotTimer)
+        {
+            GameManager.spawnBall(shootDirection);
+            shotTimer = 0.0f;
+            ballsShot++;
+
+            if (ballsShot == GameManager.shots)
+            {
+                GameManager.shootingInProgress = false;
+                ballsShot = 0;
+            }
+        }
     }
 }

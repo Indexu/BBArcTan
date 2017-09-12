@@ -96,6 +96,7 @@ public class Ball extends GameObject
         Point2D pHit;
         Vector2D n = null;
         GridObject hitObject = null;
+        boolean bottomHit = false;
 
         for (Point2D A : getPoints())
         {
@@ -121,6 +122,7 @@ public class Ball extends GameObject
                         Vector2D v = p1.vectorBetweenPoints(p2);
                         n = v.getPerp();
                         hitObject = null;
+                        bottomHit = (i == 3);
                     }
                 }
             }
@@ -155,6 +157,7 @@ public class Ball extends GameObject
                                 Vector2D v = p1.vectorBetweenPoints(p2);
                                 n = v.getPerp();
                                 hitObject = gridObject;
+                                bottomHit = false;
                             }
                         }
                     }
@@ -166,6 +169,13 @@ public class Ball extends GameObject
         if (min_tHit <= moveScalar)
         {
             // move(min_tHit);
+
+            if (bottomHit)
+            {
+                GameManager.ballDestroyed();
+                this.destroy();
+                return;
+            }
 
             if (hitObject != null)
             {
