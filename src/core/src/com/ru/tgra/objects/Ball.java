@@ -1,5 +1,6 @@
 package com.ru.tgra.objects;
 
+import com.ru.tgra.GameManager;
 import com.ru.tgra.GraphicsEnvironment;
 import com.ru.tgra.Settings;
 import com.ru.tgra.shapes.CircleGraphic;
@@ -10,7 +11,6 @@ import java.util.ArrayList;
 public class Ball extends GameObject
 {
     private float moveScalar;
-    private ArrayList<GameObject> gameObjects;
 
     public Ball(Point2D position, Vector2D direction, float speed)
     {
@@ -33,6 +33,8 @@ public class Ball extends GameObject
 
         CircleGraphic.drawSolid();
 
+        /*
+
         for (Point2D point : getPoints())
         {
             ModelMatrix.main.loadIdentityMatrix();
@@ -44,6 +46,7 @@ public class Ball extends GameObject
 
             CircleGraphic.drawSolid();
         }
+        */
     }
 
     public void update(float deltaTime)
@@ -92,6 +95,7 @@ public class Ball extends GameObject
         float min_tHit = Float.MAX_VALUE;
         Point2D pHit;
         Vector2D n = null;
+        GridObject hitObject = null;
 
         for (Point2D A : getPoints())
         {
@@ -109,30 +113,26 @@ public class Ball extends GameObject
                 {
                     pHit = Collisions.calculatePHit(A, direction, tHit);
 
-                    boolean onLine = Collisions.isPointOnLine(pHit, p1, p2);
+                    boolean onLine = pHit.isBetween(p1, p2);
 
                     if (onLine)
                     {
                         min_tHit = tHit;
                         Vector2D v = p1.vectorBetweenPoints(p2);
                         n = v.getPerp();
+                        hitObject = null;
                     }
                 }
             }
 
-            /*
-            // Blocks
-            for (GameObject gameObject : gameObjects)
-            {
-                if (gameObject instanceof Block)
-                {
-                    Block block = (Block) gameObject;
-                    Point2D[] points = block.getPoints();
 
-                    for (Point2D p : points)
-                    {
-                        System.out.println(p);
-                    }
+            // Grid objects
+            for (GridObject gridObject : GameManager.gridObjects)
+            {
+                if (gridObject instanceof Block)
+                {
+                    Block block = (Block) gridObject;
+                    Point2D[] points = block.getPoints();
 
                     for (int i = 0; i < 4; i++)
                     {
@@ -147,31 +147,39 @@ public class Ball extends GameObject
                         {
                             pHit = Collisions.calculatePHit(A, direction, tHit);
 
-                            boolean onLine = Collisions.isPointOnLine(pHit, p1, p2);
+                            boolean onLine = pHit.isBetween(p1, p2);
 
                             if (onLine)
                             {
                                 min_tHit = tHit;
                                 Vector2D v = p1.vectorBetweenPoints(p2);
                                 n = v.getPerp();
+                                hitObject = gridObject;
                             }
                         }
                     }
                 }
             }
-            */
+
         }
 
         if (min_tHit <= moveScalar)
         {
-            move(min_tHit);
+            // move(min_tHit);
+
+            if (hitObject != null)
+            {
+                hitObject.hit();
+            }
 
             this.direction = Collisions.calculateReflectionVector(direction, n);
             this.direction.normalize();
 
-            moveScalar -= min_tHit;
+            // moveScalar -= min_tHit;
 
-            checkCollisions();
+            // checkCollisions();
+
+            move(moveScalar);
         }
         else
         {
@@ -182,11 +190,6 @@ public class Ball extends GameObject
     public void setMoveScalar(float scalar)
     {
         moveScalar = scalar * Settings.BallSpeed;
-    }
-
-    public void setGameObjects(ArrayList<GameObject> gameObjects)
-    {
-        this.gameObjects = gameObjects;
     }
 
     private void move(float scalar)

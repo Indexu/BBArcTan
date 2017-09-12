@@ -1,16 +1,17 @@
 package com.ru.tgra.objects;
 
+import com.ru.tgra.GameManager;
 import com.ru.tgra.GraphicsEnvironment;
 import com.ru.tgra.Settings;
 import com.ru.tgra.shapes.CircleGraphic;
 import com.ru.tgra.shapes.RectangleGraphic;
 import com.ru.tgra.utilities.*;
 
-public class Block extends GameObject
+public class Block extends GridObject
 {
     private int health;
 
-    public Block(Point2D position, int health)
+    public Block(Point2D position, int health, int row, int col)
     {
         super();
 
@@ -19,6 +20,9 @@ public class Block extends GameObject
 
         scale.x = Settings.BlockSize;
         scale.y = Settings.BlockSize;
+
+        this.row = row;
+        this.col = col;
     }
 
     @Override
@@ -30,6 +34,7 @@ public class Block extends GameObject
 
         GraphicsEnvironment.drawText(new Point2D(position.x - Settings.BlockTextOffset, position.y + Settings.BlockTextOffset), Integer.toString(health), color);
 
+        /*
         for (Point2D point : getPoints())
         {
             ModelMatrix.main.loadIdentityMatrix();
@@ -41,7 +46,7 @@ public class Block extends GameObject
 
             CircleGraphic.drawSolid();
         }
-
+        */
     }
 
     public void update(float deltaTime)
@@ -60,5 +65,16 @@ public class Block extends GameObject
         Point2D topLeft = new Point2D(position.x - halfSize, position.y + halfSize);
 
         return new Point2D[] { bottomLeft, topLeft, topRight, bottomRight };
+    }
+
+    public void hit()
+    {
+        health--;
+
+        if (health == 0)
+        {
+            GameManager.addDestroyBlockParticles(position);
+            this.destroy();
+        }
     }
 }

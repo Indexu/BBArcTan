@@ -1,6 +1,7 @@
 package com.ru.tgra.objects.particles;
 
 import com.ru.tgra.GraphicsEnvironment;
+import com.ru.tgra.Settings;
 import com.ru.tgra.objects.GameObject;
 import com.ru.tgra.shapes.RectangleGraphic;
 import com.ru.tgra.utilities.*;
@@ -8,6 +9,7 @@ import com.ru.tgra.utilities.*;
 public class SquareParticle extends GameObject
 {
     private float rotationStrength;
+    private float scaleDown;
 
     public SquareParticle(Point2D position)
     {
@@ -32,6 +34,8 @@ public class SquareParticle extends GameObject
         // Scale
         float size = RandomGenerator.randomNumberInRange(5, 15);
         Vector2D scale = new Vector2D(size, size);
+
+        scaleDown = size / Settings.DestroyBlockLifespan;
 
         // Rotation
         rotationStrength = RandomGenerator.randomNumberInRange(-25, 25);
@@ -64,5 +68,8 @@ public class SquareParticle extends GameObject
         position.y += direction.y * speed * deltaTime;
 
         rotation += rotationStrength;
+
+        scale.x -= scaleDown * deltaTime;
+        scale.y -= scaleDown * deltaTime;
     }
 }

@@ -7,45 +7,33 @@ import com.ru.tgra.objects.*;
 import com.ru.tgra.objects.particles.DestroyBlock;
 import com.ru.tgra.shapes.CircleGraphic;
 import com.ru.tgra.shapes.RectangleGraphic;
-import com.ru.tgra.utilities.Color;
-import com.ru.tgra.utilities.ModelMatrix;
-import com.ru.tgra.utilities.Point2D;
-import com.ru.tgra.utilities.Vector2D;
+import com.ru.tgra.utilities.*;
 
 import java.util.ArrayList;
 
 public class BBArcTanGame extends ApplicationAdapter
 {
 	private GameObject block;
-	private ArrayList<GameObject> gameObjects;
 	private GameObject aimer;
 
 	@Override
 	public void create ()
 	{
 		GraphicsEnvironment.setupGraphicsEnvironment();
-		GameState.initGameState();
-        gameObjects = new ArrayList<>();
         ModelMatrix.main = new ModelMatrix();
+        GameManager.initGameManager();
 
         Color aimerColor = new Color(0.5f, 0.5f, 0.5f, 1);
-        Point2D aimerPos = new Point2D(Gdx.graphics.getWidth() / 2, 50);
+        Point2D aimerPos = new Point2D(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 8);
         aimer = new Aimer(aimerPos, aimerColor);
 
         Color clearColor = new Color(0f, 0f, 0f, 1.0f);
 		GraphicsEnvironment.setClearColor(clearColor);
 
-		Color testColor = new Color(0.5f, 0f, 0, 1);
+        GameObject layout = new Layout(new Point2D(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 24));
 
-        block = new Block(new Point2D(250, 500), 5);
-        block.setColor(testColor);
-
-        gameObjects.add(block);
-
-        GameObject layout = new Layout(new Point2D(Gdx.graphics.getWidth() / 2, 25));
-
-        gameObjects.add(aimer);
-        gameObjects.add(layout);
+        GameManager.gameObjects.add(aimer);
+        GameManager.gameObjects.add(layout);
 	}
 
 	private void update()
@@ -59,41 +47,46 @@ public class BBArcTanGame extends ApplicationAdapter
 
 		if(Gdx.input.justTouched())
 		{
+            // GameManager.nextRound();
+
 			//do mouse/touch input stuff
 
-            gameObjects.add(new DestroyBlock(new Point2D(mouseX, mouseY)));
+            // GameManager.gameObjects.add(new DestroyBlock(new Point2D(mouseX, mouseY)));
 
-            Vector2D direction = aimer.getPosition().vectorBetweenPoints(new Point2D(mouseX, mouseY));
-            direction.normalize();
-
-            GameObject ball = new Ball(new Point2D(aimer.getPosition()), direction, Settings.BallSpeed);
-
-            gameObjects.add(ball);
+            shoot(mouseX, mouseY);
 		}
 
 		//do all updates to the game
-        for(GameObject gameObject : gameObjects)
+        for(GameObject gameObject : GameManager.gameObjects)
         {
             if (gameObject instanceof Ball)
             {
                 Ball ball = (Ball) gameObject;
 
-                ball.setGameObjects(gameObjects);
                 ball.setMoveScalar(deltaTime);
             }
 
             gameObject.update(deltaTime);
         }
 
+        // Create particles
+        for (Point2D point : GameManager.getDestroyBlockParticlesCoors())
+        {
+            GameManager.gameObjects.add(new DestroyBlock(new Point2D(point.x, point.y)));
+        }
+
+        // Empty the particle lists
+        GameManager.emptyAllCoordsLists();
+
         // Remove destroyed game objects
-        gameObjects.removeIf(GameObject::isDestroyed);
+        GameManager.removeDestroyed();
 	}
 
 	private void display()
 	{
 		GraphicsEnvironment.clear();
 
-        for(GameObject gameObject : gameObjects)
+        for(GameObject gameObject : GameManager.gameObjects)
         {
             gameObject.draw();
         }
@@ -111,8 +104,18 @@ public class BBArcTanGame extends ApplicationAdapter
         float x = aimer.getPosition().x;
         float y = aimer.getPosition().y;
 
-        float rotation = (float) (270 + (Math.atan((y - mouseY) / (x - mouseX)) * (180 / Math.PI)));
+        float rotation = (float) ( 270 - Math.atan2((double) (y - mouseY), (double)(x - mouseX)) * (180 / Math.PI));
 
-        aimer.setRotation(rotation);
+        aimer.setRotation(-rotation);
+    }
+
+    private void shoot(float mouseX, float mouseY)
+    {
+        Vector2D direction = aimer.getPosition().vectorBetweenPoints(new Point2D(mouseX, mouseY));
+        direction.normalize();
+
+        GameObject ball = new Ball(new Point2D(aimer.getPosition()), direction, Settings.BallSpeed);
+
+        GameManager.gameObjects.add(ball);
     }
 }

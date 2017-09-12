@@ -18,8 +18,8 @@ public class Layout extends GameObject
         scale.y = position.y * 2;
 
         Point2D topRight = new Point2D(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        Point2D bottomRight = new Point2D(Gdx.graphics.getWidth(), 0);
-        Point2D bottomLeft = new Point2D(0, 0);
+        Point2D bottomRight = new Point2D(Gdx.graphics.getWidth(), position.y * 2);
+        Point2D bottomLeft = new Point2D(0, position.y * 2);
         Point2D topLeft = new Point2D(0, Gdx.graphics.getHeight());
 
         points = new Point2D[] { bottomLeft, topLeft, topRight, bottomRight };
@@ -28,9 +28,9 @@ public class Layout extends GameObject
     @Override
     public void draw()
     {
-        //super.draw();
+        super.draw();
 
-        //RectangleGraphic.drawSolid();
+        RectangleGraphic.drawSolid();
     }
 
     public void update(float deltaTime)
