@@ -77,7 +77,9 @@ public class BBArcTanGame extends ApplicationAdapter
             if (gameObject instanceof Ball)
             {
                 Ball ball = (Ball) gameObject;
-                ball.checkCollisions(deltaTime, gameObjects);
+
+                ball.setGameObjects(gameObjects);
+                ball.setMoveScalar(deltaTime);
             }
 
             gameObject.update(deltaTime);

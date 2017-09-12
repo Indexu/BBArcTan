@@ -1,5 +1,6 @@
 package com.ru.tgra.objects;
 
+import com.ru.tgra.GraphicsEnvironment;
 import com.ru.tgra.Settings;
 import com.ru.tgra.shapes.CircleGraphic;
 import com.ru.tgra.utilities.*;
@@ -8,6 +9,9 @@ import java.util.ArrayList;
 
 public class Ball extends GameObject
 {
+    private float moveScalar;
+    private ArrayList<GameObject> gameObjects;
+
     public Ball(Point2D position, Vector2D direction, float speed)
     {
         super();
@@ -18,6 +22,8 @@ public class Ball extends GameObject
 
         scale.x = Settings.BallSize;
         scale.y = Settings.BallSize;
+
+        moveScalar = 0.0f;
     }
 
     @Override
@@ -26,12 +32,23 @@ public class Ball extends GameObject
         super.draw();
 
         CircleGraphic.drawSolid();
+
+        for (Point2D point : getPoints())
+        {
+            ModelMatrix.main.loadIdentityMatrix();
+            ModelMatrix.main.addTranslation(point);
+            ModelMatrix.main.addScale(new Vector2D(4, 4));
+            ModelMatrix.main.setShaderMatrix(GraphicsEnvironment.getModelMatrixLoc());
+
+            GraphicsEnvironment.setColor(new Color(RandomGenerator.randomNumberInRange(0, 1), RandomGenerator.randomNumberInRange(0, 1), RandomGenerator.randomNumberInRange(0, 1), 1));
+
+            CircleGraphic.drawSolid();
+        }
     }
 
     public void update(float deltaTime)
     {
-        position.x += direction.x * speed * deltaTime;
-        position.y += direction.y * speed * deltaTime;
+        checkCollisions();
     }
 
     @Override
@@ -65,8 +82,13 @@ public class Ball extends GameObject
         return new Point2D[] { top, topRight, right, bottomRight, bottom, bottomLeft, left, topLeft };
     }
 
-    public void checkCollisions(float deltaTime, ArrayList<GameObject> gameObjects)
+    private void checkCollisions()
     {
+        if (moveScalar <= 0)
+        {
+            return;
+        }
+
         float min_tHit = Float.MAX_VALUE;
         Point2D pHit;
         Vector2D n = null;
@@ -83,15 +105,18 @@ public class Ball extends GameObject
 
                 float tHit = Collisions.calculateTHit(A, p1, p2, direction);
 
-                pHit = Collisions.calculatePHit(A, direction, tHit);
-
-                boolean onLine = Collisions.isPointOnLine(pHit, p1, p2);
-
-                if (onLine && 0 <= tHit && tHit < min_tHit)
+                if (0 < tHit && tHit < min_tHit)
                 {
-                    min_tHit = tHit;
-                    Vector2D v = p1.vectorBetweenPoints(p2);
-                    n = v.getPerp();
+                    pHit = Collisions.calculatePHit(A, direction, tHit);
+
+                    boolean onLine = Collisions.isPointOnLine(pHit, p1, p2);
+
+                    if (onLine)
+                    {
+                        min_tHit = tHit;
+                        Vector2D v = p1.vectorBetweenPoints(p2);
+                        n = v.getPerp();
+                    }
                 }
             }
 
@@ -104,6 +129,11 @@ public class Ball extends GameObject
                     Block block = (Block) gameObject;
                     Point2D[] points = block.getPoints();
 
+                    for (Point2D p : points)
+                    {
+                        System.out.println(p);
+                    }
+
                     for (int i = 0; i < 4; i++)
                     {
                         int j = (i + 1) % 4;
@@ -113,15 +143,18 @@ public class Ball extends GameObject
 
                         float tHit = Collisions.calculateTHit(A, p1, p2, direction);
 
-                        pHit = Collisions.calculatePHit(A, direction, tHit);
-
-                        boolean onLine = Collisions.isPointOnLine(pHit, p1, p2);
-
-                        if (onLine && 0 < tHit && tHit < min_tHit)
+                        if (0 < tHit && tHit < min_tHit)
                         {
-                            min_tHit = tHit;
-                            Vector2D v = p1.vectorBetweenPoints(p2);
-                            n = v.getPerp();
+                            pHit = Collisions.calculatePHit(A, direction, tHit);
+
+                            boolean onLine = Collisions.isPointOnLine(pHit, p1, p2);
+
+                            if (onLine)
+                            {
+                                min_tHit = tHit;
+                                Vector2D v = p1.vectorBetweenPoints(p2);
+                                n = v.getPerp();
+                            }
                         }
                     }
                 }
@@ -129,10 +162,36 @@ public class Ball extends GameObject
             */
         }
 
-        if (min_tHit <= deltaTime * speed)
+        if (min_tHit <= moveScalar)
         {
+            move(min_tHit);
+
             this.direction = Collisions.calculateReflectionVector(direction, n);
             this.direction.normalize();
+
+            moveScalar -= min_tHit;
+
+            checkCollisions();
         }
+        else
+        {
+            move(moveScalar);
+        }
+    }
+
+    public void setMoveScalar(float scalar)
+    {
+        moveScalar = scalar * Settings.BallSpeed;
+    }
+
+    public void setGameObjects(ArrayList<GameObject> gameObjects)
+    {
+        this.gameObjects = gameObjects;
+    }
+
+    private void move(float scalar)
+    {
+        position.x += direction.x * scalar;
+        position.y += direction.y * scalar;
     }
 }

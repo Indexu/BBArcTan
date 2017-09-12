@@ -2,8 +2,9 @@ package com.ru.tgra.objects;
 
 import com.ru.tgra.GraphicsEnvironment;
 import com.ru.tgra.Settings;
+import com.ru.tgra.shapes.CircleGraphic;
 import com.ru.tgra.shapes.RectangleGraphic;
-import com.ru.tgra.utilities.Point2D;
+import com.ru.tgra.utilities.*;
 
 public class Block extends GameObject
 {
@@ -28,6 +29,19 @@ public class Block extends GameObject
         RectangleGraphic.drawOutline();
 
         GraphicsEnvironment.drawText(new Point2D(position.x - Settings.BlockTextOffset, position.y + Settings.BlockTextOffset), Integer.toString(health), color);
+
+        for (Point2D point : getPoints())
+        {
+            ModelMatrix.main.loadIdentityMatrix();
+            ModelMatrix.main.addTranslation(point);
+            ModelMatrix.main.addScale(new Vector2D(3, 3));
+            ModelMatrix.main.setShaderMatrix(GraphicsEnvironment.getModelMatrixLoc());
+
+            GraphicsEnvironment.setColor(new Color(RandomGenerator.randomNumberInRange(0, 1), RandomGenerator.randomNumberInRange(0, 1), RandomGenerator.randomNumberInRange(0, 1), 1));
+
+            CircleGraphic.drawSolid();
+        }
+
     }
 
     public void update(float deltaTime)
@@ -38,10 +52,12 @@ public class Block extends GameObject
     @Override
     public Point2D[] getPoints()
     {
-        Point2D topRight = new Point2D(position.x + Settings.BlockSize, position.y + Settings.BlockSize);
-        Point2D bottomRight = new Point2D(position.x + Settings.BlockSize, position.y - Settings.BlockSize);
-        Point2D bottomLeft = new Point2D(position.x - Settings.BlockSize, position.y - Settings.BlockSize);
-        Point2D topLeft = new Point2D(position.x - Settings.BlockSize, position.y - Settings.BlockSize);
+        float halfSize = Settings.BlockSize / 2;
+
+        Point2D topRight = new Point2D(position.x + halfSize, position.y + halfSize);
+        Point2D bottomRight = new Point2D(position.x + halfSize, position.y - halfSize);
+        Point2D bottomLeft = new Point2D(position.x - halfSize, position.y - halfSize);
+        Point2D topLeft = new Point2D(position.x - halfSize, position.y + halfSize);
 
         return new Point2D[] { bottomLeft, topLeft, topRight, bottomRight };
     }
