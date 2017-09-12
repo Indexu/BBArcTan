@@ -38,7 +38,6 @@ public class BBArcTanGame extends ApplicationAdapter
 		Color testColor = new Color(0.5f, 0f, 0, 1);
 
         block = new Block(new Point2D(250, 500), 5);
-        block.setScale(new Vector2D(70, 70));
         block.setColor(testColor);
 
         gameObjects.add(block);
@@ -75,6 +74,12 @@ public class BBArcTanGame extends ApplicationAdapter
 		//do all updates to the game
         for(GameObject gameObject : gameObjects)
         {
+            if (gameObject instanceof Ball)
+            {
+                Ball ball = (Ball) gameObject;
+                ball.checkCollisions(deltaTime, gameObjects);
+            }
+
             gameObject.update(deltaTime);
         }
 
@@ -104,8 +109,8 @@ public class BBArcTanGame extends ApplicationAdapter
         float x = aimer.getPosition().x;
         float y = aimer.getPosition().y;
 
-        float rotation = (float) (270 - (Math.atan((y - mouseY) / (x - mouseX)) * (180 / Math.PI)));
+        float rotation = (float) (270 + (Math.atan((y - mouseY) / (x - mouseX)) * (180 / Math.PI)));
 
-        aimer.setRotation(-rotation);
+        aimer.setRotation(rotation);
     }
 }

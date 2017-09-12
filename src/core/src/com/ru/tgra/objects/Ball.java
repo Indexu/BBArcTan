@@ -4,6 +4,8 @@ import com.ru.tgra.Settings;
 import com.ru.tgra.shapes.CircleGraphic;
 import com.ru.tgra.utilities.*;
 
+import java.util.ArrayList;
+
 public class Ball extends GameObject
 {
     public Ball(Point2D position, Vector2D direction, float speed)
@@ -30,15 +32,11 @@ public class Ball extends GameObject
     {
         position.x += direction.x * speed * deltaTime;
         position.y += direction.y * speed * deltaTime;
-
-        checkCollisions(deltaTime);
     }
 
     @Override
     public Point2D[] getPoints()
     {
-        float halfSize = Settings.BallSize / 2;
-
         Point2D top = new Point2D(position.x, position.y + Settings.BallSize);
         Point2D bottom = new Point2D(position.x, position.y - Settings.BallSize);
         Point2D left = new Point2D(position.x - Settings.BallSize, position.y);
@@ -67,17 +65,15 @@ public class Ball extends GameObject
         return new Point2D[] { top, topRight, right, bottomRight, bottom, bottomLeft, left, topLeft };
     }
 
-    private void checkCollisions(float deltaTime)
+    public void checkCollisions(float deltaTime, ArrayList<GameObject> gameObjects)
     {
-        // Bounds
         float min_tHit = Float.MAX_VALUE;
-        Point2D p_hit = null;
-        Vector2D temp_c = null;
-        Vector2D main_c = null;
-        Vector2D main_n = null;
+        Point2D pHit;
+        Vector2D n = null;
 
         for (Point2D A : getPoints())
         {
+            // Bounds
             for (int i = 0; i < 4; i++)
             {
                 int j = (i + 1) % 4;
@@ -85,42 +81,58 @@ public class Ball extends GameObject
                 Point2D p1 = Layout.points[i];
                 Point2D p2 = Layout.points[j];
 
-                Vector2D c = new Vector2D(this.direction);
-                Point2D B = p1;
-                Vector2D v = B.vectorBetweenPoints(p2);
-                Vector2D n = v.getPerp();
+                float tHit = Collisions.calculateTHit(A, p1, p2, direction);
 
-                float t_hit = (n.dot(Vector2D.difference(B, A))) / n.dot(c);
+                pHit = Collisions.calculatePHit(A, direction, tHit);
 
-                temp_c = new Vector2D(c);
-                c.scale(t_hit);
-                p_hit = Point2D.additionVector(A, c);
+                boolean onLine = Collisions.isPointOnLine(pHit, p1, p2);
 
-                boolean onLine;
-
-                if (v.y == 0)
+                if (onLine && 0 <= tHit && tHit < min_tHit)
                 {
-                    onLine = (B.y < p2.y && (B.y <= p_hit.y && p_hit.y <= p2.y)) || (p2.y <= p_hit.y && p_hit.y <= B.y);
-                }
-                else
-                {
-                    onLine = (B.x < p2.x && (B.x <= p_hit.x && p_hit.x <= p2.x)) || (p2.x <= p_hit.x && p_hit.x <= B.x);
-                }
-
-                if (onLine && 0 < t_hit && t_hit < min_tHit)
-                {
-                    min_tHit = t_hit;
-                    main_n = n;
-                    main_c = temp_c;
+                    min_tHit = tHit;
+                    Vector2D v = p1.vectorBetweenPoints(p2);
+                    n = v.getPerp();
                 }
             }
+
+            /*
+            // Blocks
+            for (GameObject gameObject : gameObjects)
+            {
+                if (gameObject instanceof Block)
+                {
+                    Block block = (Block) gameObject;
+                    Point2D[] points = block.getPoints();
+
+                    for (int i = 0; i < 4; i++)
+                    {
+                        int j = (i + 1) % 4;
+
+                        Point2D p1 = points[i];
+                        Point2D p2 = points[j];
+
+                        float tHit = Collisions.calculateTHit(A, p1, p2, direction);
+
+                        pHit = Collisions.calculatePHit(A, direction, tHit);
+
+                        boolean onLine = Collisions.isPointOnLine(pHit, p1, p2);
+
+                        if (onLine && 0 < tHit && tHit < min_tHit)
+                        {
+                            min_tHit = tHit;
+                            Vector2D v = p1.vectorBetweenPoints(p2);
+                            n = v.getPerp();
+                        }
+                    }
+                }
+            }
+            */
         }
 
         if (min_tHit <= deltaTime * speed)
         {
-            main_n.scale(2 * (main_c.dot(main_n) / main_n.dotSelf()));
-
-            this.direction = new Vector2D(main_c.x - main_n.x, main_c.y - main_n.y);
+            this.direction = Collisions.calculateReflectionVector(direction, n);
+            this.direction.normalize();
         }
     }
 }

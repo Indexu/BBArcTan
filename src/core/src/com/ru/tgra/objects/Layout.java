@@ -28,9 +28,9 @@ public class Layout extends GameObject
     @Override
     public void draw()
     {
-        super.draw();
+        //super.draw();
 
-        RectangleGraphic.drawSolid();
+        //RectangleGraphic.drawSolid();
     }
 
     public void update(float deltaTime)
