@@ -1,10 +1,7 @@
 package com.ru.tgra;
 
 import com.badlogic.gdx.Gdx;
-import com.ru.tgra.objects.Ball;
-import com.ru.tgra.objects.Block;
-import com.ru.tgra.objects.GameObject;
-import com.ru.tgra.objects.GridObject;
+import com.ru.tgra.objects.*;
 import com.ru.tgra.objects.particles.DestroyBlock;
 import com.ru.tgra.objects.powerups.BallUp;
 import com.ru.tgra.utilities.*;
@@ -26,6 +23,7 @@ public class GameManager
     public static int score;
     public static int round;
     public static boolean firstDestroyedBall;
+    public static Point2D shootOriginPoint;
 
     private static int ballsInPlay;
     private static Point2D[][] grid;
@@ -49,8 +47,12 @@ public class GameManager
         round = 0;
 
         shootDirection = new Vector2D();
+        shootOriginPoint = new Point2D();
+
+        layout = new Layout(new Point2D(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 24));
 
         initGrid();
+        initAimer();
     }
 
     public static void nextRound()
@@ -97,7 +99,7 @@ public class GameManager
 
     public static void spawnBall()
     {
-        GameObject ball = new Ball(new Point2D(aimer.getPosition()), shootDirection, Settings.BallSpeed);
+        GameObject ball = new Ball(new Point2D(shootOriginPoint), shootDirection, Settings.BallSpeed);
 
         gameObjects.add(ball);
 
@@ -115,8 +117,11 @@ public class GameManager
         {
             aimer.setRotation(-rotation);
 
-            shootDirection = aimer.getPosition().vectorBetweenPoints(new Point2D(mouseX, mouseY));
-            shootDirection.normalize();
+            if (aimingInProgress)
+            {
+                shootDirection = aimer.getPosition().vectorBetweenPoints(new Point2D(mouseX, mouseY));
+                shootDirection.normalize();
+            }
         }
     }
 
@@ -159,6 +164,16 @@ public class GameManager
             roundInProgress = false;
             shootingInProgress = false;
         }
+    }
+
+    public static void increaseShots()
+    {
+        shots++;
+    }
+
+    public static void increaseScore(float amount)
+    {
+        score += amount;
     }
 
     public static Color getBlockColor(int number)
@@ -310,13 +325,9 @@ public class GameManager
         }
     }
 
-    public static void increaseShots()
+    private static void initAimer()
     {
-        shots++;
-    }
-
-    public static void increaseScore(float amount)
-    {
-        score += amount;
+        Point2D aimerPos = new Point2D(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 8);
+        GameManager.aimer = new Aimer(aimerPos, Settings.AimerColor);
     }
 }

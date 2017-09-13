@@ -1,16 +1,11 @@
 package com.ru.tgra;
 
 import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.ru.tgra.objects.*;
 import com.ru.tgra.objects.particles.DestroyBlock;
-import com.ru.tgra.shapes.CircleGraphic;
-import com.ru.tgra.shapes.RectangleGraphic;
 import com.ru.tgra.utilities.*;
-
-import java.util.ArrayList;
 
 public class BBArcTanGame extends ApplicationAdapter
 {
@@ -25,13 +20,7 @@ public class BBArcTanGame extends ApplicationAdapter
         GameManager.initGameManager();
         AudioManager.initSoundManager();
 
-        Color aimerColor = new Color(0.5f, 0.5f, 0.5f, 1);
-        Point2D aimerPos = new Point2D(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 8);
-        GameManager.aimer = new Aimer(aimerPos, aimerColor);
-
 		GraphicsEnvironment.setClearColor(Settings.BackgroundColor);
-
-        GameManager.layout = new Layout(new Point2D(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 24));
 
         shotTimer = 0.0f;
         ballsShot = 0;
@@ -54,17 +43,16 @@ public class BBArcTanGame extends ApplicationAdapter
             GameManager.setAimerRotation(mouseX, mouseY);
         }
 
-        // Input
+        // Click
 		if(Gdx.input.justTouched())
 		{
-            // GameManager.gameObjects.add(new DestroyBlock(new Point2D(mouseX, mouseY)));
-
             if (GameManager.aimingInProgress && !GameManager.gameOver)
             {
-                shoot(mouseX, mouseY);
+                shoot();
             }
 		}
 
+		// Space bar
 		if (Gdx.input.isKeyPressed(Input.Keys.SPACE))
         {
             GameManager.endRound();
@@ -75,20 +63,23 @@ public class BBArcTanGame extends ApplicationAdapter
             shootingInProgress(deltaTime);
         }
 
-		//do all updates to the game
+        // Update aimer
+        GameManager.aimer.update(deltaTime);
+
+	    // Update all other game objects
         for(GameObject gameObject : GameManager.gameObjects)
         {
+            // Check collisions for balls
             if (gameObject instanceof Ball)
             {
                 Ball ball = (Ball) gameObject;
 
-                ball.setMoveScalar(deltaTime);
+                ball.setMoveScalar(deltaTime * Settings.BallSpeed);
+                Collisions.checkCollisions(ball);
             }
 
             gameObject.update(deltaTime);
         }
-
-        GameManager.aimer.update(deltaTime);
 
         // Create particles
         for (Point2D point : GameManager.getDestroyBlockParticlesCoors())
@@ -102,18 +93,23 @@ public class BBArcTanGame extends ApplicationAdapter
         // Remove destroyed game objects
         GameManager.removeDestroyed();
 
+        // Check if next round should be initiated
         GameManager.checkIfNextRound();
 	}
 
 	private void display()
 	{
+	    // Clear
 		GraphicsEnvironment.clear();
 
+		// Draw game objects
         for(GameObject gameObject : GameManager.gameObjects)
         {
             gameObject.draw();
         }
 
+        // Draw aimer and layout separately last
+        // so that they are on top
         GameManager.aimer.draw();
         GameManager.layout.draw();
 	}
@@ -125,17 +121,17 @@ public class BBArcTanGame extends ApplicationAdapter
 		display();
 	}
 
-
-
-    private void shoot(float mouseX, float mouseY)
+    private void shoot()
     {
+        GameManager.shootOriginPoint.setPoint(GameManager.aimer.getPosition());
+
         GameManager.aimingInProgress = false;
         GameManager.shootingInProgress = true;
     }
 
-    private void shootingInProgress(float deltatime)
+    private void shootingInProgress(float deltaTime)
     {
-        shotTimer += deltatime;
+        shotTimer += deltaTime;
 
         if (Settings.timeBetweenShots <= shotTimer)
         {

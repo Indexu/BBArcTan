@@ -52,7 +52,6 @@ public class Ball extends GameObject
 
     public void update(float deltaTime)
     {
-        checkCollisions();
         move(moveScalar);
     }
 
@@ -87,122 +86,17 @@ public class Ball extends GameObject
         return new Point2D[] { top, topRight, right, bottomRight, bottom, bottomLeft, left, topLeft };
     }
 
-    private void checkCollisions()
-    {
-        if (moveScalar <= 0)
-        {
-            return;
-        }
-
-        float min_tHit = Float.MAX_VALUE;
-        Point2D pHit;
-        Vector2D n = null;
-        GridObject hitObject = null;
-        boolean bottomHit = false;
-
-        for (Point2D A : getPoints())
-        {
-            // Bounds
-            for (int i = 0; i < 4; i++)
-            {
-                int j = (i + 1) % 4;
-
-                Point2D p1 = Layout.points[i];
-                Point2D p2 = Layout.points[j];
-
-                float tHit = Collisions.calculateTHit(A, p1, p2, direction);
-
-                if (0 < tHit && tHit < min_tHit)
-                {
-                    pHit = Collisions.calculatePHit(A, direction, tHit);
-
-                    boolean onLine = pHit.isBetween(p1, p2);
-
-                    if (onLine)
-                    {
-                        min_tHit = tHit;
-                        Vector2D v = p1.vectorBetweenPoints(p2);
-                        n = v.getPerp();
-                        hitObject = null;
-                        bottomHit = (i == 3);
-                    }
-                }
-            }
-
-
-            // Grid objects
-            for (GridObject gridObject : GameManager.gridObjects)
-            {
-                Point2D[] points = gridObject.getPoints();
-
-                for (int i = 0; i < 4; i++)
-                {
-                    int j = (i + 1) % 4;
-
-                    Point2D p1 = points[i];
-                    Point2D p2 = points[j];
-
-                    float tHit = Collisions.calculateTHit(A, p1, p2, direction);
-
-                    if (0 < tHit && tHit < min_tHit)
-                    {
-                        pHit = Collisions.calculatePHit(A, direction, tHit);
-
-                        boolean onLine = pHit.isBetween(p1, p2);
-
-                        if (onLine)
-                        {
-                            min_tHit = tHit;
-                            Vector2D v = p1.vectorBetweenPoints(p2);
-                            n = v.getPerp();
-                            hitObject = gridObject;
-                            bottomHit = false;
-                        }
-                    }
-                }
-            }
-
-        }
-
-        if (min_tHit <= moveScalar)
-        {
-            // move(min_tHit);
-
-            if (bottomHit)
-            {
-                GameManager.ballDestroyed(position);
-                this.destroy();
-                return;
-            }
-
-            if (hitObject != null)
-            {
-                hitObject.hit();
-
-                if (hitObject instanceof BallUp)
-                {
-                    move(moveScalar);
-                    return;
-                }
-            }
-
-            this.direction = Collisions.calculateReflectionVector(direction, n);
-            this.direction.normalize();
-
-            // moveScalar -= min_tHit;
-
-            // checkCollisions();
-
-            // move(moveScalar);
-        }
-    }
-
     public void setMoveScalar(float scalar)
     {
-        moveScalar = scalar * Settings.BallSpeed;
+        moveScalar = scalar;
     }
 
-    private void move(float scalar)
+    public float getMoveScalar()
+    {
+        return moveScalar;
+    }
+
+    public void move(float scalar)
     {
         position.x += direction.x * scalar;
         position.y += direction.y * scalar;

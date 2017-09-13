@@ -7,6 +7,8 @@ public class Settings
     public static final Color BackgroundColor = new Color(0, 0, 0, 1);
 
     public static final Color AimerBaseColor = new Color(0.5f, 0, 0, 1);
+    public static final Color AimerColor = new Color(0.5f, 0.5f, 0.5f, 1);
+
     public static final float MinAimerAngle = 275;
     public static final float MaxAimerAngle = 445;
 
@@ -19,6 +21,8 @@ public class Settings
 
     public static final int BallSize = 7;
     public static final int BallSpeed = 700;
+
+    public static final float T_HitEpsilon = 1.001f;
 
     public static final float BlockSize = 60.0f;
 

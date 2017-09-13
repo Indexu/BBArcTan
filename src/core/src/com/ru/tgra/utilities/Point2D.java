@@ -5,8 +5,6 @@ public class Point2D {
     public float x;
     public float y;
 
-    private float epsilon = 10.0f;
-
     public Point2D()
     {
         this.x = 0;
@@ -25,15 +23,16 @@ public class Point2D {
         this.y = point.y;
     }
 
+    public void setPoint(Point2D point)
+    {
+        x = point.x;
+        y = point.y;
+    }
+
     public void add(Vector2D v)
     {
         x += v.x;
         y += v.y;
-    }
-
-    public float distance(Point2D p)
-    {
-        return (float) Math.sqrt(Math.pow(p.x - x, 2) + Math.pow(p.y - y, 2));
     }
 
     public boolean isBetween(Point2D p1, Point2D p2)
@@ -54,8 +53,6 @@ public class Point2D {
         }
 
         return (p2.x < x && x < p1.x);
-
-        // return Math.abs((this.distance(p1) + this.distance(p2) - p1.distance(p2))) < epsilon;
     }
 
     public Vector2D vectorBetweenPoints(Point2D point)
