@@ -1,5 +1,6 @@
 package com.ru.tgra.objects.powerups;
 
+import com.ru.tgra.AudioManager;
 import com.ru.tgra.GameManager;
 import com.ru.tgra.GraphicsEnvironment;
 import com.ru.tgra.Settings;
@@ -7,6 +8,7 @@ import com.ru.tgra.objects.GridObject;
 import com.ru.tgra.shapes.RectangleGraphic;
 import com.ru.tgra.utilities.Color;
 import com.ru.tgra.utilities.Point2D;
+import com.ru.tgra.utilities.RandomGenerator;
 
 public class BallUp extends GridObject
 {
@@ -32,7 +34,7 @@ public class BallUp extends GridObject
 
         RectangleGraphic.drawOutline();
 
-        GraphicsEnvironment.drawText(new Point2D(position.x - Settings.BlockTextOffset, position.y + Settings.BlockTextOffset), "+", color);
+        GraphicsEnvironment.drawText(position, "+", color);
 
         /*
         for (Point2D point : getPoints())
@@ -70,6 +72,7 @@ public class BallUp extends GridObject
     public void hit()
     {
         GameManager.increaseShots();
+        AudioManager.playBallUp();
         this.destroy();
     }
 }

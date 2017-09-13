@@ -53,6 +53,7 @@ public class Ball extends GameObject
     public void update(float deltaTime)
     {
         checkCollisions();
+        move(moveScalar);
     }
 
     @Override
@@ -192,11 +193,7 @@ public class Ball extends GameObject
 
             // checkCollisions();
 
-            move(moveScalar);
-        }
-        else
-        {
-            move(moveScalar);
+            // move(moveScalar);
         }
     }
 

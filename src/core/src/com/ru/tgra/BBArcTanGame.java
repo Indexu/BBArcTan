@@ -1,6 +1,7 @@
 package com.ru.tgra;
 
 import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.ru.tgra.objects.*;
@@ -14,7 +15,6 @@ import java.util.ArrayList;
 public class BBArcTanGame extends ApplicationAdapter
 {
 	private float shotTimer;
-	private Vector2D shootDirection;
 	private int ballsShot;
 
 	@Override
@@ -31,12 +31,9 @@ public class BBArcTanGame extends ApplicationAdapter
 
 		GraphicsEnvironment.setClearColor(Settings.BackgroundColor);
 
-        GameObject layout = new Layout(new Point2D(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 24));
-
-        GameManager.gameObjects.add(layout);
+        GameManager.layout = new Layout(new Point2D(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 24));
 
         shotTimer = 0.0f;
-        shootDirection = new Vector2D();
         ballsShot = 0;
 
         for (int i = 0; i < Settings.initialRows; i++)
@@ -67,6 +64,11 @@ public class BBArcTanGame extends ApplicationAdapter
                 shoot(mouseX, mouseY);
             }
 		}
+
+		if (Gdx.input.isKeyPressed(Input.Keys.SPACE))
+        {
+            GameManager.endRound();
+        }
 
 		if (GameManager.shootingInProgress)
         {
@@ -113,6 +115,7 @@ public class BBArcTanGame extends ApplicationAdapter
         }
 
         GameManager.aimer.draw();
+        GameManager.layout.draw();
 	}
 
 	@Override
@@ -126,9 +129,6 @@ public class BBArcTanGame extends ApplicationAdapter
 
     private void shoot(float mouseX, float mouseY)
     {
-        shootDirection = GameManager.aimer.getPosition().vectorBetweenPoints(new Point2D(mouseX, mouseY));
-        shootDirection.normalize();
-
         GameManager.aimingInProgress = false;
         GameManager.shootingInProgress = true;
     }
@@ -139,7 +139,7 @@ public class BBArcTanGame extends ApplicationAdapter
 
         if (Settings.timeBetweenShots <= shotTimer)
         {
-            GameManager.spawnBall(shootDirection);
+            GameManager.spawnBall();
             shotTimer = 0.0f;
             ballsShot++;
 

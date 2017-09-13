@@ -3,6 +3,7 @@ package com.ru.tgra;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.utils.BufferUtils;
@@ -31,6 +32,7 @@ public class GraphicsEnvironment
 
     private static SpriteBatch batch;
     private static BitmapFont font12;
+    private static GlyphLayout layout;
 
     public static void setupGraphicsEnvironment()
     {
@@ -76,9 +78,17 @@ public class GraphicsEnvironment
 
     public static void drawText(Point2D position, String text, Color color)
     {
+        layout = new GlyphLayout(font12, text);
+
+        float offsetX = layout.width /2;
+        float offsetY = layout.height /2;
+
+        float fontX = position.x - offsetX;
+        float fontY = position.y + offsetY;
+
         batch.begin();
         font12.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-        font12.draw(batch, text, position.x, position.y);
+        font12.draw(batch, text, fontX, fontY);
         batch.end();
 
         Gdx.gl.glUseProgram(renderingProgramID);
@@ -163,7 +173,6 @@ public class GraphicsEnvironment
     private static void initFonts()
     {
         batch = new SpriteBatch();
-
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/RobotoMono-Regular.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 

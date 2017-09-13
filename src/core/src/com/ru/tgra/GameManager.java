@@ -21,6 +21,7 @@ public class GameManager
     public static boolean shootingInProgress;
     public static boolean aimingInProgress;
     public static GameObject aimer;
+    public static GameObject layout;
     public static int shots;
     public static int score;
     public static int round;
@@ -29,6 +30,7 @@ public class GameManager
     private static int ballsInPlay;
     private static Point2D[][] grid;
     private static ArrayList<Point2D> destroyBlockParticlesCoords;
+    private static Vector2D shootDirection;
 
     public static void initGameManager()
     {
@@ -42,9 +44,11 @@ public class GameManager
         firstDestroyedBall = true;
 
         shots = Settings.initialShots;
-        score = 0;
+        score = Settings.initialScore;
         ballsInPlay = 0;
         round = 0;
+
+        shootDirection = new Vector2D();
 
         initGrid();
     }
@@ -60,6 +64,12 @@ public class GameManager
         else
         {
             round++;
+
+            if (round != 1)
+            {
+                increaseScore(Settings.ScoreNextRound);
+            }
+
             addRow();
         }
     }
@@ -85,9 +95,9 @@ public class GameManager
         destroyBlockParticlesCoords.clear();
     }
 
-    public static void spawnBall(Vector2D direction)
+    public static void spawnBall()
     {
-        GameObject ball = new Ball(new Point2D(aimer.getPosition()), direction, Settings.BallSpeed);
+        GameObject ball = new Ball(new Point2D(aimer.getPosition()), shootDirection, Settings.BallSpeed);
 
         gameObjects.add(ball);
 
@@ -101,7 +111,13 @@ public class GameManager
 
         float rotation = (float) ( 270 - Math.atan2((double) (y - mouseY), (double)(x - mouseX)) * (180 / Math.PI));
 
-        aimer.setRotation(-rotation);
+        if (MathUtils.isBetween(rotation, Settings.MinAimerAngle, Settings.MaxAimerAngle))
+        {
+            aimer.setRotation(-rotation);
+
+            shootDirection = aimer.getPosition().vectorBetweenPoints(new Point2D(mouseX, mouseY));
+            shootDirection.normalize();
+        }
     }
 
     public static void ballDestroyed(Point2D position)
@@ -130,6 +146,70 @@ public class GameManager
             roundInProgress = true;
             aimingInProgress = true;
             firstDestroyedBall = true;
+        }
+    }
+
+    public static void endRound()
+    {
+        if (!aimingInProgress)
+        {
+            gameObjects.removeIf(gameObject -> gameObject instanceof Ball);
+
+            ballsInPlay = 0;
+            roundInProgress = false;
+            shootingInProgress = false;
+        }
+    }
+
+    public static Color getBlockColor(int number)
+    {
+        if (number == 1)
+        {
+            return Settings.BlockColor1;
+        }
+        else if (number == 2)
+        {
+            return Settings.BlockColor2;
+        }
+        else if (number == 3)
+        {
+            return Settings.BlockColor3;
+        }
+        else if (number == 4)
+        {
+            return Settings.BlockColor4;
+        }
+        else if (MathUtils.isBetween(number, 5, 9))
+        {
+            return Settings.BlockColor5;
+        }
+        else if (MathUtils.isBetween(number, 10, 19))
+        {
+            return Settings.BlockColor10;
+        }
+        else if (MathUtils.isBetween(number, 20, 29))
+        {
+            return Settings.BlockColor20;
+        }
+        else if (MathUtils.isBetween(number, 30, 39))
+        {
+            return Settings.BlockColor30;
+        }
+        else if (MathUtils.isBetween(number, 40, 49))
+        {
+            return Settings.BlockColor40;
+        }
+        else if (MathUtils.isBetween(number, 50, 74))
+        {
+            return Settings.BlockColor50;
+        }
+        else if (MathUtils.isBetween(number, 75, 99))
+        {
+            return Settings.BlockColor75;
+        }
+        else
+        {
+            return Settings.BlockColor100;
         }
     }
 
@@ -177,7 +257,7 @@ public class GameManager
                 float rand = RandomGenerator.randomNumberInRange(0, 1);
 
                 // Ball up
-                if (!ballUpAdded && Settings.chanceOfBallUp < rand)
+                if (!ballUpAdded && rand < Settings.chanceOfBallUp)
                 {
                     BallUp ballUp = new BallUp(position, row, i);
 
@@ -186,12 +266,9 @@ public class GameManager
                     ballUpAdded = true;
                 }
                 // Block
-                else if (Settings.chanceOfBlock < rand && blocksAdded != Settings.maximumNumberOfBlocksPerRow)
+                else if (rand < Settings.chanceOfBlock && blocksAdded != Settings.maximumNumberOfBlocksPerRow)
                 {
-                    Color testColor = new Color(0.5f, 0f, 0, 1);
-
                     Block block = new Block(position, round, row, i);
-                    block.setColor(testColor);
 
                     objectsToAdd[i] = block;
 
@@ -238,8 +315,8 @@ public class GameManager
         shots++;
     }
 
-    public static void increaseScore()
+    public static void increaseScore(float amount)
     {
-        score++;
+        score += amount;
     }
 }

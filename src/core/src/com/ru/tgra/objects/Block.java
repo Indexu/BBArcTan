@@ -32,7 +32,14 @@ public class Block extends GridObject
     @Override
     public void draw()
     {
-        super.draw();
+        ModelMatrix.main.loadIdentityMatrix();
+        ModelMatrix.main.addTranslation(position);
+        ModelMatrix.main.addRotationZ(rotation);
+        ModelMatrix.main.addScale(scale);
+        ModelMatrix.main.setShaderMatrix(GraphicsEnvironment.getModelMatrixLoc());
+
+        color = GameManager.getBlockColor(health);
+        GraphicsEnvironment.setColor(color);
 
         RectangleGraphic.drawSolid();
 
@@ -46,7 +53,7 @@ public class Block extends GridObject
 
         RectangleGraphic.drawSolid();
 
-        GraphicsEnvironment.drawText(new Point2D(position.x - Settings.BlockTextOffset, position.y + Settings.BlockTextOffset), Integer.toString(health), color);
+        GraphicsEnvironment.drawText(position, Integer.toString(health), color);
 
         /*
         for (Point2D point : getPoints())
@@ -84,12 +91,14 @@ public class Block extends GridObject
     public void hit()
     {
         health--;
-
+        GameManager.increaseScore(Settings.ScoreHitBlock);
         AudioManager.playBlockHit();
 
         if (health == 0)
         {
             GameManager.addDestroyBlockParticles(position);
+            GameManager.increaseScore(Settings.ScoreDestroyBlock);
+            AudioManager.playBlockDestroy();
             this.destroy();
         }
     }

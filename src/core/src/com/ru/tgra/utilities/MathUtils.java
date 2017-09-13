@@ -16,4 +16,9 @@ public class MathUtils
 
         return number;
     }
+
+    public static boolean isBetween(float number, float lower, float higher)
+    {
+        return (lower <= number && number <= higher);
+    }
 }

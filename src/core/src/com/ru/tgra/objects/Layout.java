@@ -1,6 +1,9 @@
 package com.ru.tgra.objects;
 
 import com.badlogic.gdx.Gdx;
+import com.ru.tgra.GameManager;
+import com.ru.tgra.GraphicsEnvironment;
+import com.ru.tgra.Settings;
 import com.ru.tgra.shapes.RectangleGraphic;
 import com.ru.tgra.utilities.Point2D;
 
@@ -30,7 +33,21 @@ public class Layout extends GameObject
     {
         super.draw();
 
+        // Backdrop
         RectangleGraphic.drawSolid();
+
+        // Round text
+        GraphicsEnvironment.drawText(position, "Round: " + GameManager.round, Settings.BackgroundColor);
+
+        // Balls text
+        float offsetX = position.x - (Gdx.graphics.getWidth() / 3);
+        Point2D pos = new Point2D(offsetX, position.y);
+        GraphicsEnvironment.drawText(pos, "Balls: " + GameManager.shots, Settings.BackgroundColor);
+
+        // Score text
+        offsetX = position.x + (Gdx.graphics.getWidth() / 3);
+        pos.x = offsetX;
+        GraphicsEnvironment.drawText(pos, "Score: " + GameManager.score, Settings.BackgroundColor);
     }
 
     public void update(float deltaTime)

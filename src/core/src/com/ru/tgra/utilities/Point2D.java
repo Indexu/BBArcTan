@@ -38,7 +38,24 @@ public class Point2D {
 
     public boolean isBetween(Point2D p1, Point2D p2)
     {
-        return Math.abs((this.distance(p1) + this.distance(p2) - p1.distance(p2))) < epsilon;
+        if (Math.abs(p1.x - p2.x) < Math.abs(p1.y - p2.y))
+        {
+            if (p1.y < p2.y)
+            {
+                return (p1.y < y && y < p2.y);
+            }
+
+            return (p2.y < y && y < p1.y);
+        }
+
+        if (p1.x < p2.x)
+        {
+            return (p1.x < x && x < p2.x);
+        }
+
+        return (p2.x < x && x < p1.x);
+
+        // return Math.abs((this.distance(p1) + this.distance(p2) - p1.distance(p2))) < epsilon;
     }
 
     public Vector2D vectorBetweenPoints(Point2D point)
