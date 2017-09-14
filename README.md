@@ -17,6 +17,10 @@ A recreation of the popular mobile game BB Tan in Java.
 
 In order to run BBTan on your own machine, you will need to compile the source code.
 
+You will have to set the main class to: **src/desktop/src/com.ru.tgra.desktop.DesktopLauncher**.
+
+At this point you can compile the game, but not run it without crashing. You also have to set the working directory to the **src/core/assets** directory.
+
 ### Prerequisites
 
 You will need Java 8 in order to compile the game.
