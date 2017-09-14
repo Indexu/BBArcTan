@@ -6,9 +6,7 @@ import com.ru.tgra.GraphicsEnvironment;
 import com.ru.tgra.Settings;
 import com.ru.tgra.objects.GridObject;
 import com.ru.tgra.shapes.RectangleGraphic;
-import com.ru.tgra.utilities.Color;
 import com.ru.tgra.utilities.Point2D;
-import com.ru.tgra.utilities.RandomGenerator;
 
 public class BallUp extends GridObject
 {

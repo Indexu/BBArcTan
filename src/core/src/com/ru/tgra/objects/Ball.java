@@ -1,13 +1,8 @@
 package com.ru.tgra.objects;
 
-import com.ru.tgra.GameManager;
-import com.ru.tgra.GraphicsEnvironment;
 import com.ru.tgra.Settings;
-import com.ru.tgra.objects.powerups.BallUp;
 import com.ru.tgra.shapes.CircleGraphic;
 import com.ru.tgra.utilities.*;
-
-import java.util.ArrayList;
 
 public class Ball extends GameObject
 {

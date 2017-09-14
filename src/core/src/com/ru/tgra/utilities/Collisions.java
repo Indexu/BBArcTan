@@ -64,9 +64,11 @@ public class Collisions
             {
                 points = gridObject.getPoints();
 
-                for (int i = 0; i < 4; i++)
+                int numberOfPoints = points.length;
+
+                for (int i = 0; i < numberOfPoints; i++)
                 {
-                    int j = (i + 1) % 4;
+                    int j = (i + 1) % numberOfPoints;
 
                     Point2D p1 = points[i];
                     Point2D p2 = points[j];

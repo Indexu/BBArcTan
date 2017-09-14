@@ -392,7 +392,15 @@ public class GameManager
                 // Block
                 else if (rand < Settings.ChanceOfBlock && blocksAdded != Settings.MaximumNumberOfBlocksPerRow)
                 {
-                    Block block = new Block(position, round, row, i);
+                    boolean triangle = RandomGenerator.nextBool();
+                    float rotation = 0f;
+
+                    if (triangle)
+                    {
+                        rotation = RandomGenerator.randomCorner();
+                    }
+
+                    Block block = new Block(position, triangle, rotation, round, row, i);
 
                     objectsToAdd[i] = block;
 

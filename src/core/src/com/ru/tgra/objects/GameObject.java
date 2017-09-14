@@ -5,7 +5,6 @@ import com.ru.tgra.utilities.Color;
 import com.ru.tgra.utilities.ModelMatrix;
 import com.ru.tgra.utilities.Point2D;
 import com.ru.tgra.utilities.Vector2D;
-import com.sun.org.apache.xpath.internal.operations.Mod;
 
 public abstract class GameObject
 {

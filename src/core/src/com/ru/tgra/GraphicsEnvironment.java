@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.utils.BufferUtils;
 import com.ru.tgra.shapes.CircleGraphic;
 import com.ru.tgra.shapes.RectangleGraphic;
+import com.ru.tgra.shapes.TriangleGraphic;
 import com.ru.tgra.utilities.Color;
 import com.ru.tgra.utilities.Point2D;
 
@@ -219,6 +220,7 @@ public class GraphicsEnvironment
     {
         RectangleGraphic.create(vertexPointer);
         CircleGraphic.create(vertexPointer);
+        TriangleGraphic.create(vertexPointer);
     }
 
     public static int getModelMatrixLoc()
