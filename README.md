@@ -58,3 +58,13 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 * [111%](http://www.111percent.net/) for making the amazingly addictive game BB Tan
 * Special thanks to Kári Halldórsson for teaching us collision checking and OpenGL.
+
+### Audio
+
+* [NoCopyrightSounds](http://nocopyrightsounds.co.uk/) - Music
+    * [YouTube link to the soundtrack](https://www.youtube.com/watch?v=Kvt-FLjON9M)
+* [FreeSound](https://freesound.org/) - Sound effects
+    * [Ball collides with wall](https://freesound.org/people/unfa/sounds/156667/)
+    * [Collection ball up](https://freesound.org/people/GameAudio/sounds/220173/)
+    * [Hitting a block](https://freesound.org/people/fordps3/sounds/186669/)
+    * [Destroying a block](https://freesound.org/people/killkhan/sounds/150210/)
