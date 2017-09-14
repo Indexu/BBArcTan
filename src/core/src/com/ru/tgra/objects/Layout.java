@@ -9,7 +9,7 @@ import com.ru.tgra.utilities.Point2D;
 
 public class Layout extends GameObject
 {
-    public static Point2D[] points;
+    private Point2D[] points;
 
     public Layout(Point2D position)
     {
@@ -37,21 +37,27 @@ public class Layout extends GameObject
         RectangleGraphic.drawSolid();
 
         // Round text
-        GraphicsEnvironment.drawText(position, "Round: " + GameManager.round, Settings.BackgroundColor);
+        GraphicsEnvironment.drawText(position, "Round: " + GameManager.round, Settings.BackgroundColor, 1);
 
         // Balls text
         float offsetX = position.x - (Gdx.graphics.getWidth() / 3);
         Point2D pos = new Point2D(offsetX, position.y);
-        GraphicsEnvironment.drawText(pos, "Balls: " + GameManager.shots, Settings.BackgroundColor);
+        GraphicsEnvironment.drawText(pos, "Balls: " + GameManager.shots, Settings.BackgroundColor, 1);
 
         // Score text
         offsetX = position.x + (Gdx.graphics.getWidth() / 3);
         pos.x = offsetX;
-        GraphicsEnvironment.drawText(pos, "Score: " + GameManager.score, Settings.BackgroundColor);
+        GraphicsEnvironment.drawText(pos, "Score: " + GameManager.score, Settings.BackgroundColor, 1);
     }
 
     public void update(float deltaTime)
     {
         // TODO
+    }
+
+    @Override
+    public Point2D[] getPoints()
+    {
+        return points;
     }
 }

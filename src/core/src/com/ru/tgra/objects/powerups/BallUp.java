@@ -34,7 +34,7 @@ public class BallUp extends GridObject
 
         RectangleGraphic.drawOutline();
 
-        GraphicsEnvironment.drawText(position, "+", color);
+        GraphicsEnvironment.drawText(position, "+", color, 1);
 
         /*
         for (Point2D point : getPoints())
@@ -71,8 +71,12 @@ public class BallUp extends GridObject
 
     public void hit()
     {
-        GameManager.increaseShots();
-        AudioManager.playBallUp();
-        this.destroy();
+        if (!destroyed)
+        {
+            GameManager.increaseShots();
+            GameManager.addDestroyBallUpParticles(position);
+            AudioManager.playBallUp();
+            this.destroy();
+        }
     }
 }

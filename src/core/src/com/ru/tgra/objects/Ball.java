@@ -52,6 +52,8 @@ public class Ball extends GameObject
 
     public void update(float deltaTime)
     {
+        moveScalar = deltaTime * speed;
+        Collisions.checkCollisions(this);
         move(moveScalar);
     }
 

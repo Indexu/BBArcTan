@@ -17,7 +17,7 @@ public class DestroyBlock extends GameObject
 
         for(int i = 0; i < Settings.DestroyBlockNumberOfParticles; i++)
         {
-            particleBlocks[i] = new SquareParticle(new Point2D(position));
+            particleBlocks[i] = new SquareParticle(new Point2D(position), Settings.DestroyBlockLifespan, null, false, true);
         }
     }
 

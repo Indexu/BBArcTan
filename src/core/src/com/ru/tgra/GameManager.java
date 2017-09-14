@@ -2,7 +2,6 @@ package com.ru.tgra;
 
 import com.badlogic.gdx.Gdx;
 import com.ru.tgra.objects.*;
-import com.ru.tgra.objects.particles.DestroyBlock;
 import com.ru.tgra.objects.powerups.BallUp;
 import com.ru.tgra.utilities.*;
 
@@ -13,10 +12,13 @@ public class GameManager
 {
     public static ArrayList<GameObject> gameObjects;
     public static ArrayList<GridObject> gridObjects;
+    public static boolean paused;
     public static boolean gameOver;
     public static boolean roundInProgress;
     public static boolean shootingInProgress;
     public static boolean aimingInProgress;
+    public static boolean restartable;
+    public static boolean mainMenu;
     public static GameObject aimer;
     public static GameObject layout;
     public static int shots;
@@ -24,27 +26,54 @@ public class GameManager
     public static int round;
     public static boolean firstDestroyedBall;
     public static Point2D shootOriginPoint;
+    public static Point2D gameOverPausePosition;
+    public static boolean shaking;
+    public static float shakeOffsetX;
+    public static float shakeOffsetY;
 
     private static int ballsInPlay;
     private static Point2D[][] grid;
     private static ArrayList<Point2D> destroyBlockParticlesCoords;
+    private static ArrayList<Point2D> destroyBallUpParticlesCoords;
+    private static ArrayList<Point2D> hitBlockParticlesCoords;
+    private static ArrayList<Color> hitBlockParticlesColors;
     private static Vector2D shootDirection;
+    private static float gameOverTimer;
+    private static boolean gameOverDone;
+    private static float shakerTimer;
 
     public static void initGameManager()
     {
         gameObjects = new ArrayList<>();
         gridObjects = new ArrayList<>();
+
         destroyBlockParticlesCoords = new ArrayList<>();
+        destroyBallUpParticlesCoords = new ArrayList<>();
+        hitBlockParticlesCoords = new ArrayList<>();
+        hitBlockParticlesColors = new ArrayList<>();
+
         gameOver = false;
         roundInProgress = true;
         aimingInProgress = true;
         shootingInProgress = false;
         firstDestroyedBall = true;
+        paused = false;
+        restartable = false;
+        shaking = false;
 
-        shots = Settings.initialShots;
-        score = Settings.initialScore;
+        shots = Settings.InitialShots;
+        score = Settings.InitialScore;
         ballsInPlay = 0;
         round = 0;
+
+        shakerTimer = 0;
+        shakeOffsetX = 0;
+        shakeOffsetY = 0;
+
+        gameOverTimer = 0f;
+        gameOverDone = false;
+        gameOverPausePosition = new Point2D(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() - (Gdx.graphics.getHeight() / 3));
+        Settings.GameOverColor.setAlpha(0);
 
         shootDirection = new Vector2D();
         shootOriginPoint = new Point2D();
@@ -59,11 +88,7 @@ public class GameManager
     {
         shiftRows();
 
-        if (gameOver)
-        {
-            gameOver();
-        }
-        else
+        if (!gameOver)
         {
             round++;
 
@@ -74,6 +99,27 @@ public class GameManager
 
             addRow();
         }
+    }
+
+    public static void pause()
+    {
+        paused = !paused;
+    }
+
+    public static void gameOver(float deltaTime)
+    {
+        gameOverTimer +=deltaTime;
+
+        if (!gameOverDone && Settings.GameOverTime <= gameOverTimer)
+        {
+            gameOverTimer = Settings.GameOverTime;
+            gameOverDone = true;
+            restartable = true;
+        }
+
+        Settings.GameOverColor.setAlpha(gameOverTimer / Settings.GameOverTime);
+
+        GraphicsEnvironment.drawText(gameOverPausePosition, "Game Over", Settings.GameOverColor, 3);
     }
 
     public static void removeDestroyed()
@@ -87,14 +133,44 @@ public class GameManager
         destroyBlockParticlesCoords.add(position);
     }
 
-    public static ArrayList<Point2D> getDestroyBlockParticlesCoors()
+    public static void addDestroyBallUpParticles(Point2D position)
+    {
+        destroyBallUpParticlesCoords.add(position);
+    }
+
+    public static ArrayList<Point2D> getDestroyBlockParticlesCoords()
     {
         return destroyBlockParticlesCoords;
+    }
+
+    public static ArrayList<Point2D> getDestroyBallUpParticlesCoords()
+    {
+        return destroyBallUpParticlesCoords;
+    }
+
+    public static void addHitBlockParticles(Point2D position, Color color)
+    {
+        hitBlockParticlesCoords.add(position);
+        hitBlockParticlesColors.add(color);
+    }
+
+    public static ArrayList<Point2D> getHitBlockParticlesCoords()
+    {
+        return hitBlockParticlesCoords;
+    }
+
+    public static ArrayList<Color> getHitBlockParticlesColors()
+    {
+        return hitBlockParticlesColors;
     }
 
     public static void emptyAllCoordsLists()
     {
         destroyBlockParticlesCoords.clear();
+        destroyBallUpParticlesCoords.clear();
+
+        hitBlockParticlesCoords.clear();
+        hitBlockParticlesColors.clear();
     }
 
     public static void spawnBall()
@@ -176,6 +252,38 @@ public class GameManager
         score += amount;
     }
 
+    public static void screenShake(float deltaTime)
+    {
+        shakerTimer += deltaTime;
+
+        if (shakerTimer <= Settings.ShakerTime)
+        {
+            shakeOffsetX = RandomGenerator.randomNumberInRange(-Settings.ShakerStrength, Settings.ShakerStrength);
+            shakeOffsetY = RandomGenerator.randomNumberInRange(-Settings.ShakerStrength, Settings.ShakerStrength);
+
+            GraphicsEnvironment.OrthographicProjection2D
+            (
+                -shakeOffsetX,
+                Gdx.graphics.getWidth() - shakeOffsetX,
+                -shakeOffsetY,
+                Gdx.graphics.getHeight() - shakeOffsetY
+            );
+        }
+        else
+        {
+            shakerTimer = 0f;
+            shaking = false;
+
+            GraphicsEnvironment.OrthographicProjection2D
+            (
+                0,
+                Gdx.graphics.getWidth(),
+                0,
+                Gdx.graphics.getHeight()
+            );
+        }
+    }
+
     public static Color getBlockColor(int number)
     {
         if (number == 1)
@@ -242,6 +350,7 @@ public class GameManager
             if (!gameOver)
             {
                 gameOver = (row == 1);
+                gameOverDone = !gameOver;
             }
 
             Point2D newPos = grid[row][gridObject.getCol()];
@@ -255,7 +364,7 @@ public class GameManager
     {
         int blocksAdded;
         boolean ballUpAdded;
-        GameObject[] objectsToAdd = new GameObject[Settings.cols];
+        GameObject[] objectsToAdd = new GameObject[Settings.Cols];
 
         do
         {
@@ -263,16 +372,16 @@ public class GameManager
             ballUpAdded = false;
             Arrays.fill(objectsToAdd, null);
 
-            for (int i = 0; i < Settings.cols; i++)
+            for (int i = 0; i < Settings.Cols; i++)
             {
-                int row = Settings.rows - 1;
+                int row = Settings.Rows - 1;
 
                 Point2D position = grid[row][i];
 
                 float rand = RandomGenerator.randomNumberInRange(0, 1);
 
                 // Ball up
-                if (!ballUpAdded && rand < Settings.chanceOfBallUp)
+                if (!ballUpAdded && rand < Settings.ChanceOfBallUp)
                 {
                     BallUp ballUp = new BallUp(position, row, i);
 
@@ -281,7 +390,7 @@ public class GameManager
                     ballUpAdded = true;
                 }
                 // Block
-                else if (rand < Settings.chanceOfBlock && blocksAdded != Settings.maximumNumberOfBlocksPerRow)
+                else if (rand < Settings.ChanceOfBlock && blocksAdded != Settings.MaximumNumberOfBlocksPerRow)
                 {
                     Block block = new Block(position, round, row, i);
 
@@ -291,9 +400,9 @@ public class GameManager
                 }
             }
 
-        } while(blocksAdded <= Settings.minimumNumberOfBlocksPerRow || !ballUpAdded);
+        } while(blocksAdded <= Settings.MinimumNumberOfBlocksPerRow || !ballUpAdded);
 
-        for (int i = 0; i < Settings.cols; i++)
+        for (int i = 0; i < Settings.Cols; i++)
         {
             if (objectsToAdd[i] != null)
             {
@@ -303,22 +412,16 @@ public class GameManager
         }
     }
 
-    private static void gameOver()
-    {
-        // TODO
-        System.out.println("GAME OVER");
-    }
-
     private static void initGrid()
     {
-        grid = new Point2D[Settings.rows][Settings.cols];
+        grid = new Point2D[Settings.Rows][Settings.Cols];
 
-        float rowHeight = Gdx.graphics.getHeight() / Settings.rows;
-        float colWidth = Gdx.graphics.getWidth() / Settings.cols;
+        float rowHeight = Gdx.graphics.getHeight() / Settings.Rows;
+        float colWidth = Gdx.graphics.getWidth() / Settings.Cols;
 
-        for (int i = 0; i < Settings.rows; i++)
+        for (int i = 0; i < Settings.Rows; i++)
         {
-            for (int j = 0; j < Settings.cols; j++)
+            for (int j = 0; j < Settings.Cols; j++)
             {
                 grid[i][j] = new Point2D((j * colWidth) + (colWidth / 2), (i * rowHeight) + (rowHeight / 2));
             }

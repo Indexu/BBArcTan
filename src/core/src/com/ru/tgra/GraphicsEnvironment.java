@@ -11,7 +11,6 @@ import com.ru.tgra.shapes.CircleGraphic;
 import com.ru.tgra.shapes.RectangleGraphic;
 import com.ru.tgra.utilities.Color;
 import com.ru.tgra.utilities.Point2D;
-import com.ru.tgra.utilities.Vector2D;
 
 import java.nio.FloatBuffer;
 
@@ -31,7 +30,9 @@ public class GraphicsEnvironment
     private static int projectionMatrixLoc;
 
     private static SpriteBatch batch;
-    private static BitmapFont font12;
+    private static BitmapFont fontNormal;
+    private static BitmapFont fontLarge;
+    private static BitmapFont fontExtraLarge;
     private static GlyphLayout layout;
 
     public static void setupGraphicsEnvironment()
@@ -76,9 +77,27 @@ public class GraphicsEnvironment
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
     }
 
-    public static void drawText(Point2D position, String text, Color color)
+    public static void drawText(Point2D position, String text, Color color, int size)
     {
-        layout = new GlyphLayout(font12, text);
+        BitmapFont fontToUse;
+
+        switch (size)
+        {
+            default:
+            case 1:
+                fontToUse = fontNormal;
+                break;
+
+            case 2:
+                fontToUse = fontLarge;
+                break;
+
+            case 3:
+                fontToUse = fontExtraLarge;
+                break;
+        }
+
+        layout = new GlyphLayout(fontToUse, text);
 
         float offsetX = layout.width /2;
         float offsetY = layout.height /2;
@@ -86,9 +105,17 @@ public class GraphicsEnvironment
         float fontX = position.x - offsetX;
         float fontY = position.y + offsetY;
 
+        if (GameManager.shaking)
+        {
+            fontX += GameManager.shakeOffsetX;
+            fontY += GameManager.shakeOffsetY;
+        }
+
         batch.begin();
-        font12.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-        font12.draw(batch, text, fontX, fontY);
+
+        fontToUse.setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+        fontToUse.draw(batch, text, fontX, fontY);
+
         batch.end();
 
         Gdx.gl.glUseProgram(renderingProgramID);
@@ -177,8 +204,14 @@ public class GraphicsEnvironment
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 
         parameter.size = 18;
+        fontNormal = generator.generateFont(parameter);
 
-        font12 = generator.generateFont(parameter);
+        parameter.size = 32;
+        fontLarge = generator.generateFont(parameter);
+
+        parameter.size = 46;
+        fontExtraLarge = generator.generateFont(parameter);
+
         generator.dispose();
     }
 
@@ -186,28 +219,6 @@ public class GraphicsEnvironment
     {
         RectangleGraphic.create(vertexPointer);
         CircleGraphic.create(vertexPointer);
-    }
-
-    private static float[] multiplySquareMatrixAndBuffer(float[] arrayMatrix, FloatBuffer bufferMatrix, int rows)
-    {
-        float[] resultMatrix = new float[rows * rows];
-
-        for (int i = 0; i < rows; i++)
-        {
-            for (int j = 0; j < rows; j++)
-            {
-                float sum = 0.0f;
-
-                for (int k = 0; k < rows; k++)
-                {
-                    sum = sum + arrayMatrix[i * rows + k] * bufferMatrix.get(k * rows + j);
-                }
-
-                resultMatrix[i * rows + j] = sum;
-            }
-        }
-
-        return resultMatrix;
     }
 
     public static int getModelMatrixLoc()

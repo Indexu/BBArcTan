@@ -53,7 +53,7 @@ public class Block extends GridObject
 
         RectangleGraphic.drawSolid();
 
-        GraphicsEnvironment.drawText(position, Integer.toString(health), color);
+        GraphicsEnvironment.drawText(position, Integer.toString(health), color, 1);
 
         /*
         for (Point2D point : getPoints())
@@ -98,6 +98,7 @@ public class Block extends GridObject
         {
             GameManager.addDestroyBlockParticles(position);
             GameManager.increaseScore(Settings.ScoreDestroyBlock);
+            GameManager.shaking = true;
             AudioManager.playBlockDestroy();
             this.destroy();
         }

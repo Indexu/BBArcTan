@@ -11,6 +11,7 @@ public class DesktopLauncher {
 		config.title = "BB Arc Tan";
 		config.width = 465;
 		config.height = 720;
+		config.resizable = false;
 
 		new LwjglApplication(new BBArcTanGame(), config);
 	}

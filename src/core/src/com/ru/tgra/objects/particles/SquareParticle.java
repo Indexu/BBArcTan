@@ -10,17 +10,22 @@ public class SquareParticle extends GameObject
 {
     private float rotationStrength;
     private float scaleDown;
+    private boolean gravity;
 
-    public SquareParticle(Point2D position)
+    public SquareParticle(Point2D position, float lifespan, Color color, boolean gravity, boolean large)
     {
         super();
 
         // Color
-        float r = RandomGenerator.randomNumberInRange(0, 1);
-        float g = RandomGenerator.randomNumberInRange(0, 1);
-        float b = RandomGenerator.randomNumberInRange(0, 1);
 
-        Color color = new Color(r, g, b, 1);
+        if (color == null)
+        {
+            float r = RandomGenerator.randomNumberInRange(0, 1);
+            float g = RandomGenerator.randomNumberInRange(0, 1);
+            float b = RandomGenerator.randomNumberInRange(0, 1);
+
+            color = new Color(r, g, b, 1);
+        }
 
         // Direction
         float dirX = RandomGenerator.randomNumberInRange(-1, 1);
@@ -29,13 +34,14 @@ public class SquareParticle extends GameObject
         Vector2D direction = new Vector2D(dirX, dirY);
 
         // Speed
-        this.speed = RandomGenerator.randomNumberInRange(50, 150);
+
+        this.speed = (large ? RandomGenerator.randomNumberInRange(50, 150) : RandomGenerator.randomNumberInRange(50, 100));
 
         // Scale
-        float size = RandomGenerator.randomNumberInRange(5, 15);
+        float size = (large ? RandomGenerator.randomNumberInRange(5, 15) : RandomGenerator.randomNumberInRange(1, 5));
         Vector2D scale = new Vector2D(size, size);
 
-        scaleDown = size / Settings.DestroyBlockLifespan;
+        scaleDown = size / lifespan;
 
         // Rotation
         rotationStrength = RandomGenerator.randomNumberInRange(-25, 25);
@@ -44,6 +50,7 @@ public class SquareParticle extends GameObject
         this.direction = direction;
         this.scale = scale;
         this.color = color;
+        this.gravity = gravity;
     }
 
     @Override
@@ -71,5 +78,10 @@ public class SquareParticle extends GameObject
 
         scale.x -= scaleDown * deltaTime;
         scale.y -= scaleDown * deltaTime;
+
+        if (gravity)
+        {
+            position.y -= Settings.ParticleGravity * deltaTime;
+        }
     }
 }

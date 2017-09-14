@@ -4,39 +4,90 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.ru.tgra.objects.*;
+import com.ru.tgra.objects.particles.DestroyBallUp;
 import com.ru.tgra.objects.particles.DestroyBlock;
+import com.ru.tgra.objects.particles.HitBlock;
 import com.ru.tgra.utilities.*;
+
+import java.util.ArrayList;
 
 public class BBArcTanGame extends ApplicationAdapter
 {
 	private float shotTimer;
 	private int ballsShot;
 
+	private Point2D mainMenuTitlePosition;
+    private Point2D mainMenuClickPosition;
+    private Point2D mainMenuSpacePosition;
+    private Point2D mainMenuPausePosition;
+    private Point2D mainMenuMusicPosition;
+    private Point2D mainMenuStartPosition;
+
 	@Override
 	public void create ()
 	{
 		GraphicsEnvironment.setupGraphicsEnvironment();
         ModelMatrix.main = new ModelMatrix();
-        GameManager.initGameManager();
         AudioManager.initSoundManager();
 
 		GraphicsEnvironment.setClearColor(Settings.BackgroundColor);
 
-        shotTimer = 0.0f;
-        ballsShot = 0;
+		GameManager.mainMenu = true;
 
-        for (int i = 0; i < Settings.initialRows; i++)
-        {
-            GameManager.nextRound();
-        }
+        initGame();
+        initMainMenu();
+        AudioManager.playMusic();
 	}
 
 	private void update()
 	{
+        Gdx.graphics.setTitle("BB Arc Tan | FPS: " + Gdx.graphics.getFramesPerSecond());
+
 	    float deltaTime = Gdx.graphics.getDeltaTime();
 
         float mouseX = Gdx.input.getX();
         float mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
+
+        // Music
+        if (Gdx.input.isKeyJustPressed(Input.Keys.M))
+        {
+            AudioManager.pauseResumeMusic();
+        }
+
+        // Main Menu
+        if (GameManager.mainMenu)
+        {
+            if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE))
+            {
+                GameManager.mainMenu = false;
+            }
+
+            return;
+        }
+
+        // Restartable
+        if (GameManager.restartable)
+        {
+            // Space bar
+            if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE))
+            {
+                initGame();
+            }
+        }
+
+        // Paused
+        if (GameManager.paused)
+        {
+            paused();
+            return;
+        }
+
+        // Game Over
+        if (GameManager.gameOver)
+        {
+            GameManager.gameOver(deltaTime);
+            return;
+        }
 
 	    if (!GameManager.gameOver)
         {
@@ -53,9 +104,16 @@ public class BBArcTanGame extends ApplicationAdapter
 		}
 
 		// Space bar
-		if (Gdx.input.isKeyPressed(Input.Keys.SPACE))
+		if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE))
         {
             GameManager.endRound();
+            ballsShot = 0;
+        }
+
+        // Escape
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE))
+        {
+            GameManager.pause();
         }
 
 		if (GameManager.shootingInProgress)
@@ -69,22 +127,29 @@ public class BBArcTanGame extends ApplicationAdapter
 	    // Update all other game objects
         for(GameObject gameObject : GameManager.gameObjects)
         {
-            // Check collisions for balls
-            if (gameObject instanceof Ball)
-            {
-                Ball ball = (Ball) gameObject;
-
-                ball.setMoveScalar(deltaTime * Settings.BallSpeed);
-                Collisions.checkCollisions(ball);
-            }
-
             gameObject.update(deltaTime);
         }
 
         // Create particles
-        for (Point2D point : GameManager.getDestroyBlockParticlesCoors())
+        for (Point2D point : GameManager.getDestroyBlockParticlesCoords())
         {
-            GameManager.gameObjects.add(new DestroyBlock(new Point2D(point.x, point.y)));
+            GameManager.gameObjects.add(new DestroyBlock(point));
+        }
+
+        for (Point2D point : GameManager.getDestroyBallUpParticlesCoords())
+        {
+            GameManager.gameObjects.add(new DestroyBallUp(new Point2D(point)));
+        }
+
+        ArrayList<Point2D> hitParticleCoords = GameManager.getHitBlockParticlesCoords();
+        ArrayList<Color> hitParticleColors = GameManager.getHitBlockParticlesColors();
+
+        for (int i = 0; i < hitParticleCoords.size(); i++)
+        {
+            Point2D pos = hitParticleCoords.get(i);
+            Color color = hitParticleColors.get(i);
+
+            GameManager.gameObjects.add(new HitBlock(pos, color));
         }
 
         // Empty the particle lists
@@ -102,6 +167,19 @@ public class BBArcTanGame extends ApplicationAdapter
 	    // Clear
 		GraphicsEnvironment.clear();
 
+		// Main menu
+		if (GameManager.mainMenu)
+        {
+            drawMainMenu();
+            return;
+        }
+
+        // Screen shake
+        if (GameManager.shaking)
+        {
+            GameManager.screenShake(Gdx.graphics.getDeltaTime());
+        }
+
 		// Draw game objects
         for(GameObject gameObject : GameManager.gameObjects)
         {
@@ -112,6 +190,16 @@ public class BBArcTanGame extends ApplicationAdapter
         // so that they are on top
         GameManager.aimer.draw();
         GameManager.layout.draw();
+
+        if (GameManager.gameOver)
+        {
+            GraphicsEnvironment.drawText(GameManager.gameOverPausePosition, Settings.GameOverText, Settings.GameOverColor, 3);
+            GraphicsEnvironment.drawText(mainMenuPausePosition, "Press SPACE to restart", Settings.GameOverColor, 2);
+        }
+        else if (GameManager.paused)
+        {
+            GraphicsEnvironment.drawText(GameManager.gameOverPausePosition, Settings.PauseText, Settings.PauseColor, 3);
+        }
 	}
 
 	@Override
@@ -133,7 +221,7 @@ public class BBArcTanGame extends ApplicationAdapter
     {
         shotTimer += deltaTime;
 
-        if (Settings.timeBetweenShots <= shotTimer)
+        if (Settings.TimeBetweenShots <= shotTimer)
         {
             GameManager.spawnBall();
             shotTimer = 0.0f;
@@ -145,5 +233,59 @@ public class BBArcTanGame extends ApplicationAdapter
                 ballsShot = 0;
             }
         }
+    }
+
+    private void paused()
+    {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE))
+        {
+            GameManager.pause();
+        }
+    }
+
+    private void initGame()
+    {
+        GameManager.initGameManager();
+
+        shotTimer = 0.0f;
+        ballsShot = 0;
+
+        for (int i = 0; i < Settings.InitialRows; i++)
+        {
+            GameManager.nextRound();
+        }
+    }
+
+    private void initMainMenu()
+    {
+        float offsetY = Gdx.graphics.getHeight() / 6;
+
+        mainMenuTitlePosition = new Point2D(GameManager.gameOverPausePosition);
+        mainMenuTitlePosition.y += offsetY;
+
+        mainMenuClickPosition = new Point2D(mainMenuTitlePosition);
+        mainMenuClickPosition.y -= offsetY;
+
+        mainMenuSpacePosition = new Point2D(mainMenuClickPosition);
+        mainMenuSpacePosition.y -= offsetY / 2;
+
+        mainMenuPausePosition = new Point2D(mainMenuSpacePosition);
+        mainMenuPausePosition.y -= offsetY / 2;
+
+        mainMenuMusicPosition = new Point2D(mainMenuPausePosition);
+        mainMenuMusicPosition.y -= offsetY / 2;
+
+        mainMenuStartPosition = new Point2D(mainMenuSpacePosition);
+        mainMenuStartPosition.y -= offsetY * 1.5;
+    }
+
+    private void drawMainMenu()
+    {
+        GraphicsEnvironment.drawText(mainMenuTitlePosition, "BB Arc Tan", Settings.PauseColor, 3);
+        GraphicsEnvironment.drawText(mainMenuClickPosition, "Click to shoot", Settings.PauseColor, 1);
+        GraphicsEnvironment.drawText(mainMenuSpacePosition, "Space to end round immediately", Settings.PauseColor, 1);
+        GraphicsEnvironment.drawText(mainMenuPausePosition, "Press ESC to pause", Settings.PauseColor, 1);
+        GraphicsEnvironment.drawText(mainMenuMusicPosition, "Press M to toggle music", Settings.PauseColor, 1);
+        GraphicsEnvironment.drawText(mainMenuStartPosition, "Press SPACE to start", Settings.PauseColor, 2);
     }
 }

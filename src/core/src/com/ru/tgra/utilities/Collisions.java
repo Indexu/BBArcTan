@@ -1,10 +1,9 @@
 package com.ru.tgra.utilities;
 
+import com.ru.tgra.AudioManager;
 import com.ru.tgra.GameManager;
 import com.ru.tgra.Settings;
-import com.ru.tgra.objects.Ball;
-import com.ru.tgra.objects.GridObject;
-import com.ru.tgra.objects.Layout;
+import com.ru.tgra.objects.*;
 import com.ru.tgra.objects.powerups.BallUp;
 
 public class Collisions
@@ -22,21 +21,24 @@ public class Collisions
         }
 
         float min_tHit = Float.MAX_VALUE;
-        Point2D pHit;
+        Point2D pHit = null;
         Vector2D n = null;
         GridObject hitObject = null;
         boolean bottomHit = false;
+        Point2D[] points;
 
         // For every point on the ball
         for (Point2D A : ball.getPoints())
         {
+            points = GameManager.layout.getPoints();
+
             // Check bounds
             for (int i = 0; i < 4; i++)
             {
                 int j = (i + 1) % 4;
 
-                Point2D p1 = Layout.points[i];
-                Point2D p2 = Layout.points[j];
+                Point2D p1 = points[i];
+                Point2D p2 = points[j];
 
                 float tHit = Collisions.calculateTHit(A, p1, p2, direction);
 
@@ -60,7 +62,7 @@ public class Collisions
             // Check grid objects
             for (GridObject gridObject : GameManager.gridObjects)
             {
-                Point2D[] points = gridObject.getPoints();
+                points = gridObject.getPoints();
 
                 for (int i = 0; i < 4; i++)
                 {
@@ -99,11 +101,22 @@ public class Collisions
             {
                 hitObject.hit();
 
+                // Display particles at p_hit if block
+                if (hitObject instanceof Block)
+                {
+                    GameManager.addHitBlockParticles(pHit, hitObject.getColor());
+                }
                 // Do nothing if ball up
-                if (hitObject instanceof BallUp)
+                else if (hitObject instanceof BallUp)
                 {
                     return;
                 }
+            }
+            // Bounds hit
+            else if (!bottomHit)
+            {
+                AudioManager.playWallHit();
+                GameManager.addHitBlockParticles(pHit, Settings.AimerColor);
             }
 
             // Check if the bottom was hit
@@ -118,7 +131,7 @@ public class Collisions
             // Division is necessary in order to actually
             // collide with the line, just close enough to
             // not spasm out of control.
-            ball.move(min_tHit / Settings.T_HitEpsilon);
+            ball.move(min_tHit * Settings.T_HitEpsilon);
 
             // Reflection vector
             direction = Collisions.calculateReflectionVector(direction, n);
